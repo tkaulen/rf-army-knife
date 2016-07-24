@@ -2,8 +2,15 @@
 
 Ein schweizer Taschenmesser für Funkprotokolle
 
-##Komandozeilenbefehle
+##Komandozeilenbefehle  
 
 H Hilfe
+
+'''
+----- Availible Protocols: -----
+#0 raw mode
+#1 default
+#2 Intertechno
+'''
 
 
