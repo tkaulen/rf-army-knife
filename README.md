@@ -170,9 +170,9 @@ void onSetProtocol(char protID)
   }
   ```
 
-gfdsgfds
 
-gfdgfds
+
+
 
 ##Protokoll implementieren ProtIntertechno.h
   
