@@ -75,10 +75,15 @@ encoder: custom
 #### Konfigurationsbefehle
 
 ***P*** - Protokoll auswählen. Syntax: P=Protokollnummer
+
 ***R*** - Anzahl der Wiederholungen beim Senden des Datenpaketes. Syntax: R=Anzahl der Widerholungen
+
 ***D*** - Debugmodus an/aus. Syntax: D=0 oder D=1
+
 ***F*** - Setzt die Frequenz in Herz Syntax F=Frequenz in Herz
+
 ***M*** - Setzt die Modulationsart. Syntax P=am oder P=fm
+
 
 
 
