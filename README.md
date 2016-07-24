@@ -2,7 +2,7 @@
 
 * Ein schweizer Taschenmesser für Funkprotokolle
 
-* plattformübergreifend, unabhängig vom Transceivermodul, leistungsstarke Analysetools, modular und erweiterbar aufgebaute Definition neuer Funkprotokolle, getrennte Handhabung von Timingwerten und der Protokollimplementierung
+* plattformübergreifend, code unabhängig vom Transceivermodul, leistungsstarke Analysetools, modular und erweiterbar aufgebaute Definition neuer Funkprotokolle, getrennte Handhabung von Timingwerten und der Protokollimplementierung
 
 
 
