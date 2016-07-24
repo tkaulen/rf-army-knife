@@ -94,6 +94,14 @@ encoder: custom
 
 ***H*** - Frequenzhub in Herz
 
+##Syntax und Semantik
+
+(Informationsbefehle)
+
+(Sende & Empfangsbefehl) (Konfiguartionsbefehle) (Datenbefehle)
+
+Info: Die Konfiguration wird beim wechseln des Protokolls (P=Protokoll Nummer) zurückgesetzt. Deswegen sollte der Protokollparameter (P=Protokoll Nummer) immer an erster Stelle (nach den optionalen Sende und Empfangsbefehlen) stehen. Dies ist notwendig, da die Protokollimplementationen beim initialisieren selber Befehle absetzen um z.B. die Sende/Empfangsfrequenz zu definieren.  
+
 
 
 
