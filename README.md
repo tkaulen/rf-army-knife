@@ -84,6 +84,13 @@ encoder: custom
 
 ***M*** - Setzt die Modulationsart. Syntax P=am oder P=fm
 
+***B*** - Bandbreite in Herz
+
+***D*** - Datenrate in Baud
+
+***H*** - Frequenzhub in Herz
+
+
 
 
 
