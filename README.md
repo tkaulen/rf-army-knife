@@ -92,7 +92,7 @@ encoder: custom
 
 ###Konfigurationsbefehle - Decimator
 
-***0-9*** - Syntax:0=minTime:maxTime:duration - Setzt ein Symbol mit den entsprechenden Timingwerten.  Symbole werden als eine Zahl zwischen 0 und 9 definiert. Wir wollen ein Symbol mit einem HIGH Pegel von 150ys beim senden denden. Außerdem soll das Symbol erkannt werden, wenn sich der Pegel zwischen 100ys HIGH  und 200ys HIGH befindet. Dazu setzen wir : 0=100:200:150. LOW Pegel werden mit einem negativem Vorzeichen gesetzt. Beispiel: 0=-200:-100:-150. Bei LOW-Definitionen ist zu beachten, das die Begrenzungswerte vertauscht werden, weil mit negative Vorzeichen umgekehrt gerechnet wird.  
+***0-9*** - Syntax:0=minTime:maxTime:duration - Setzt ein Symbol mit den entsprechenden Timingwerten.  Symbole werden als eine Zahl zwischen 0 und 9 definiert. Wir wollen ein Symbol mit einem HIGH Pegel von 150ys definieren. Außerdem soll das Symbol erkannt werden, wenn sich der Pegel zwischen 100ys HIGH  und 200ys HIGH befindet. Dazu setzen wir : 0=100:200:150. LOW Pegel werden mit einem negativem Vorzeichen gesetzt. Beispiel: 0=-200:-100:-150. Bei LOW-Definitionen ist zu beachten, das die Begrenzungswerte vertauscht werden, weil mit negative Vorzeichen umgekehrt gerechnet wird.  
 
 ***a-f*** Syntax:a=firstSymbol:secondSymbol - Setzt eine Sequenz von 2 Symbolen.  Sequenzen werden mit einem Buchstaben zwischen A und F gekennzeichnet. Es ist möglich 2 aufeinanderfolgende Symbole als ein Symbol(Sequenz) zusammenzufassen. Ist z.B. ein Symbol 0 mit 300ys High und ein Symbol 1 mit 300ys Low definiert, dann lassen sich diese Symbole zu einer Sequenz zusammenfassen. Um Symbol 0 und 1 zu einer Sequenz a zusammen zu fassen wird folgende Syntax angewendet: a=01
 
