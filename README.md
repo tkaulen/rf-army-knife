@@ -4,6 +4,8 @@ Ein schweizer Taschenmesser für Funkprotokolle
 
 ##Komandozeilenbefehle  
 
+####Informationsbefehle
+
 **H** - Hilfe
 ```
 ----- Availible Protocols: -----
@@ -58,13 +60,17 @@ decoder: custom
 encoder: custom
 ```
 
+#### Sende - Empfangsbehle
+
 **<** - Daten empfangen
 
 **>** - Daten senden
 
 **<>** - Daten senden, dannach empfangen
 
-**\{**Daten 010101010....**\}** - Definiert eine Zeichenkette für die Datenausgabe
+#### Datenbefehle
+
+**\{**Daten 010101010....**\}** - Definiert eine Zeichenkette für die Datenausgabe. Die Syntax ist abhängig vom ausgewältem Protokoll.
 
 
 
