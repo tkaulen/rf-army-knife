@@ -126,7 +126,7 @@ F = 440000000  [ENTER] (setzt die Frequenz auf 444 mhz, z.B. weil jemand auf 444
 > P =2 F = 444000000 {10f0 0001 00 f0} [ENTER]  (das ganze kann man natürlich auch in eine Zeile schreiben) 
 <> {10f0 0001 00 f0} (Sendet ein Datenpaket und lauscht anschließend)
 P = 2 [ENTER]
-Achtung: Ab hier geht der gesetzte Parameter 444000000 mhz verloren, weil das Protokoll initialisiert wurde
+Achtung: Ab hier geht der gesetzte Parameter 444000000 mhz verloren, weil das Protokoll neu initialisiert wurde
 ```
 Info: Jede Eingabe über die Terminalkonsole setzt das Funkmodul in den IDLE Modus, fall es sich im RX Modus befindet. Dies ist sehr parktisch, weil man will ja nicht während der Eingabe ständig die eingehenden Datenpakete um die Ohren geschmissen bekommen. 
 
