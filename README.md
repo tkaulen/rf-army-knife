@@ -170,6 +170,7 @@ void onSetProtocol(char protID)
   }
   }
   ```
+  fdfd
   ##Protokoll implementieren ProtIntertechno.h
   
   Diese Funktion wird zeichenweise automatisch aufgerufen.
