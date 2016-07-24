@@ -176,7 +176,7 @@ void onSetProtocol(char protID)
       setSymbolRange('5', -14000, -6000, -10000); // decimator low level range from low 6000 ys to 14000 ys, output duration low 10000 ys
       setSequence('a', 3, 2); //// 300 ys High 1000 ys Low
       setSequence('b', 1, 4);
-      /* assign protocol decode/encode function */
+      /* assign protocol decode/encode callback function */
       decodeProtocol = decodeIntertechno;
       encodeProtocol = encodeIntertechno;
       /*set radio configuration*/
