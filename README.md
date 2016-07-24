@@ -102,6 +102,19 @@ encoder: custom
 
 Info: Die Konfiguration wird beim wechseln des Protokolls (P=Protokoll Nummer) zurückgesetzt. Deswegen sollte der Protokollparameter (P=Protokoll Nummer) immer an erster Stelle (nach den optionalen Sende und Empfangsbefehlen) stehen. Dies ist notwendig, da die Protokollimplementationen beim initialisieren selber Befehle absetzen um z.B. die Sende/Empfangsfrequenz zu definieren. Dannach können sämtliche Parameter nach belieben überschreiben und abgeändert werden.  
 
+Beispiel:
+```
+P = 2 [ENTER] (setzt Protokoll mit der Protokollnummer 2. Hier Intertechno)
+F = 440000000  [ENTER] (setzt die Frequens auf 444 mhz, z.B. weil man auf 444 mhz dieses Protokoll temporär testen will)
+> {10f0 0001 00 f0} [ENTER] (Sendet ein Datenpaket mit Hauscode,Gerätecode,Schaltparameter)
+< [ENTER] (Legt sich aus die Lauer und lauscht nach Schaltbefehlen)
+> P =2 F = 444000000 {10f0 0001 00 f0} [ENTER]  (das ganze kann man natürlich auch in eine Zeile schreiben) 
+<> {10f0 0001 00 f0} (Sendet ein Datenpaket und lauscht anschließend)
+P = 2 [ENTER]
+Achtung: Ab hier geht der gesetzte Parameter 444000000 mhz verloren, weil das Protokoll initialisiert wurde
+
+```
+
 
 
 
