@@ -64,6 +64,8 @@ encoder: custom
 
 **<>** - Daten senden, dannach empfangen
 
+**{Daten zum senden}**
+
 
 
 
