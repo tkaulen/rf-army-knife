@@ -92,9 +92,9 @@ encoder: custom
 
 ###Konfigurationsbefehle - Decimator
 
-***0-9*** - Setzt ein Symbol mit den entsprechenden Timingwerten.  Symbole werden mit einer Zahl zwischen 0 und 9 gekennzeichnet. Syntax:0=minTime:maxTime:duration. z.B. setze einen HIGH Pegel mit 150ys beim senden. Das Symbol wird erkannt, wenn sich der Pegel zwischen 100ys und 200ys befindet 0=100:200:150. LOW Pegel werden mit einem negativem Vorzeichen gesetzt. z.B. 0=-200:-100:-150. Bei LOW-Definitionen ist zu beachten, das die Begrenzungswerte vertauscht werden, weil mit negative Vorzeichen umgekehrt gerechnet wird.  
+***0-9*** - Syntax:0=minTime:maxTime:duration - Setzt ein Symbol mit den entsprechenden Timingwerten.  Symbole werden mit einer Zahl zwischen 0 und 9 definiert. Syntax:0=minTime:maxTime:duration. z.B. setze einen HIGH Pegel mit 150ys beim senden. Das Symbol wird erkannt, wenn sich der Pegel zwischen 100ys und 200ys befindet 0=100:200:150. LOW Pegel werden mit einem negativem Vorzeichen gesetzt. z.B. 0=-200:-100:-150. Bei LOW-Definitionen ist zu beachten, das die Begrenzungswerte vertauscht werden, weil mit negative Vorzeichen umgekehrt gerechnet wird.  
 
-***a-f*** - Setzt eine Sequenz von 2 Symbolen.  Sequenzen werden mit einem Buchstaben zwischen A und F gekennzeichnet. Es ist möglich 2 aufeinanderfolgende Symbole als ein Symbol(Sequenz) zusammenzufassen. Ist z.B. ein Symbol 0 mit 300ys High und ein Symbol 1 mit 300ys Low definiert, dann lassen sich diese Symbole zu einer Sequenz zusammenfassen. Um Symbol 0 und 1 zu einer Sequenz a zusammen zu fassen wird folgende Syntax angewendet: a=01
+***a-f*** Syntax:a=firstSymbol:secondSymbol - Setzt eine Sequenz von 2 Symbolen.  Sequenzen werden mit einem Buchstaben zwischen A und F gekennzeichnet. Es ist möglich 2 aufeinanderfolgende Symbole als ein Symbol(Sequenz) zusammenzufassen. Ist z.B. ein Symbol 0 mit 300ys High und ein Symbol 1 mit 300ys Low definiert, dann lassen sich diese Symbole zu einer Sequenz zusammenfassen. Um Symbol 0 und 1 zu einer Sequenz a zusammen zu fassen wird folgende Syntax angewendet: a=01
 
 ####Konfigurationsbefehle - Weitere
 
