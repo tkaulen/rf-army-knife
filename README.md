@@ -151,6 +151,8 @@ Bit sync:
 _|    |______________________//_____
 ```  
 
+Dazu einfach in der Switchanweisung einen neuen Case hinzufügen und wie im Beispiel protIntertechno die Parameter setzen. Die Werte sind selbstrklärend.
+
 ```
 #include "ProtIntertechno.h"
 void onSetProtocol(char protID)
