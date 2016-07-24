@@ -1,9 +1,9 @@
-# rf-army-knife
+# rf army knife 
 
-gfdsgfdsgfdgfds
-gfdsgfdsgfdsgfdsgfdsg  gfds gfd gdf
+Ein schweizer Taschenmesser für Funkprotokolle
 
-gfdsgfdsgfds
-gfdsgfdsg
+##Komandozeilenbefehle
 
-llllllllllllllllllmmmmmmmmmmmmm
+H Hilfe
+
+
