@@ -4,7 +4,7 @@ Ein schweizer Taschenmesser für Funkprotokolle
 
 ##Komandozeilenbefehle  
 
-**H** Hilfe
+**H** - Hilfe
 ```
 ----- Availible Protocols: -----
 #0 raw mode
@@ -25,7 +25,7 @@ Ein schweizer Taschenmesser für Funkprotokolle
  <> P = 2 F=433000000 {10f00 0000 00 f0}
 ```
 
-**L** List
+**L** - List
 ```
 
 ----- Symbols -----
@@ -57,5 +57,13 @@ radio: idle
 decoder: custom
 encoder: custom
 ```
+
+**<** - Daten empfangen
+
+**>** - Daten senden
+
+**<>** - Daten senden, dannach empfangen
+
+
 
 
