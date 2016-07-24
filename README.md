@@ -98,7 +98,7 @@ encoder: custom
 
 Das praktische daran ist, das man später in der Protokollimplementation sehr viel Code einsparen kann, weil man nicht mehr mühsam die Flankentimings über mehrere Flanken hinweg auswerten muss. Die Protokollhandlerfunktionen bekommen später anstatt der Timingwerte das fertig ausgewertete Symbol übergeben. Da die Timings somit vom Protokollquellcode getrennt sind, lassen sich ganz einfach die Timings on the fly ändern, falls z.B. ein Gerät von den Standardtimingwerten leichte Abweichungen hat.
 
-####Konfigurationsbefehle - Weitere
+###Konfigurationsbefehle - Weitere
 
 ***R*** - Anzahl der Wiederholungen beim Senden des Datenpaketes. Syntax: R=Anzahl der Widerholungen
 
