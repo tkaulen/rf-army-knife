@@ -64,7 +64,7 @@ decoder: custom
 encoder: custom
 ```
 
-#### Sende - Empfangsbehle
+#### Sende - Empfangsbefehle
 
 **<** - Daten empfangen
 
