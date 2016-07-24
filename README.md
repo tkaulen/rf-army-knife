@@ -92,7 +92,7 @@ encoder: custom
 
 ###Konfigurationsbefehle - Decimator
 
-***0-9*** - Setzt ein Symbol mit den entsprechenden Timingwerten. Syntax:0=minTime:maxTime:duration. z.B. setze einen HIGH Pegel mit 150 ys beim senden. Das Symbol wird erkannt, wenn sich der Pegel zwischen 100 und 200 ys befindet 0=100:200:150. LOW Pegel werden mit einem negativem Vorzeichen gesetzt. z.B. 0=-200:-100:-150. Bei LOW-Definitionen ist zu beachten, das die Begrenzungswerte vertauscht werden, weil negative Vorzeichen umgekehrt gerechnet wird.  
+***0-9*** - Setzt ein Symbol mit den entsprechenden Timingwerten. Syntax:0=minTime:maxTime:duration. z.B. setze einen HIGH Pegel mit 150ys beim senden. Das Symbol wird erkannt, wenn sich der Pegel zwischen 100ys und 200ys befindet 0=100:200:150. LOW Pegel werden mit einem negativem Vorzeichen gesetzt. z.B. 0=-200:-100:-150. Bei LOW-Definitionen ist zu beachten, das die Begrenzungswerte vertauscht werden, weil mit negative Vorzeichen umgekehrt gerechnet wird.  
 
 ####Konfigurationsbefehle - Weitere
 
