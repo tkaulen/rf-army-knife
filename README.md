@@ -59,11 +59,8 @@ encoder: custom
 ```
 
 **<** - Daten empfangen
-
 **>** - Daten senden
-
 **<>** - Daten senden, dannach empfangen
-
 **\{**Daten 010101010....**\}** - Definiert Zeichenkette für die Datenausgabe
 
 
