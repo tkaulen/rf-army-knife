@@ -74,7 +74,7 @@ encoder: custom
 
 #### Datenbefehle
 
-**\{**Daten 010101010....**\}** - Definiert eine Zeichenkette für die Datenausgabe. Die Syntax ist abhängig vom ausgewältem Protokoll.
+**\{**Daten 010101010....**\}** - Definiert eine Zeichenkette für die Datenausgabe. Die Syntax ist abhängig vom ausgewähltem Protokoll.
 
 ####Konfigurationsbefehle - Transceiver
 
