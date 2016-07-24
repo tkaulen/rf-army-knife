@@ -4,7 +4,7 @@ Ein schweizer Taschenmesser für Funkprotokolle
 
 ##Komandozeilenbefehle  
 
-H Hilfe
+**H** Hilfe
 ```
 ----- Availible Protocols: -----
 #0 raw mode
