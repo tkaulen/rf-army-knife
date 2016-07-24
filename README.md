@@ -129,10 +129,9 @@ Achtung: Ab hier geht der gesetzte Parameter 444000000 mhz verloren, weil das Pr
 Info: Jede Eingabe über die Terminalkonsole setzt das Funkmodul in den IDLE Modus, fall es sich im RX Modus befindet. Dies ist sehr parktisch, weil man will ja nicht während der Eingabe ständig die eingehenden Datenpakete um die Ohren geschmissen bekommen. 
 
 
-##Protokoll definieren in HighLevelProtocols.h
+#hgfhgfhfg
+
 ```
-
-
 #include "ProtIntertechno.h"
 void onSetProtocol(char protID)
 {
