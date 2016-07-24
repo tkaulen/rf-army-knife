@@ -104,8 +104,8 @@ Info: Die Konfiguration wird beim wechseln des Protokolls (P=Protokoll Nummer) z
 
 Beispiel:
 ```
-P = 2 [ENTER] (setzt Protokoll mit der Protokollnummer 2. Hier Intertechno)
-F = 440000000  [ENTER] (setzt die Frequenz auf 444 mhz, z.B. weil man auf 444 mhz dieses Protokoll temporär testen will)
+P = 2 [ENTER] (setzt das Protokoll mit der Protokollnummer 2. Hier Intertechno)
+F = 440000000  [ENTER] (setzt die Frequenz auf 444 mhz, z.B. weil jemand auf 444 mhz dieses Protokoll temporär testen will)
 > {10f0 0001 00 f0} [ENTER] (Sendet ein Datenpaket mit Hauscode,Gerätecode,Schaltparameter)
 < [ENTER] (Legt sich aus die Lauer und lauscht nach Schaltbefehlen)
 > P =2 F = 444000000 {10f0 0001 00 f0} [ENTER]  (das ganze kann man natürlich auch in eine Zeile schreiben) 
@@ -113,6 +113,7 @@ F = 440000000  [ENTER] (setzt die Frequenz auf 444 mhz, z.B. weil man auf 444 mh
 P = 2 [ENTER]
 Achtung: Ab hier geht der gesetzte Parameter 444000000 mhz verloren, weil das Protokoll initialisiert wurde
 ```
+Info: Jede Eingabe über die Terminalkonsole setzt das Funkmodul in den IDLE Modus, fall es sich im RX Modus befindet. Dies ist sehr parktisch, weil man will ja nicht während der Eingabe ständig die eingehenden Datenpakete um die Ohren geschmissen bekommen. 
 
 
 
