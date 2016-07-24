@@ -112,7 +112,6 @@ F = 440000000  [ENTER] (setzt die Frequens auf 444 mhz, z.B. weil man auf 444 mh
 <> {10f0 0001 00 f0} (Sendet ein Datenpaket und lauscht anschließend)
 P = 2 [ENTER]
 Achtung: Ab hier geht der gesetzte Parameter 444000000 mhz verloren, weil das Protokoll initialisiert wurde
-
 ```
 
 
