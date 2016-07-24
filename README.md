@@ -198,7 +198,7 @@ void onSetProtocol(char protID)
 
 ##Protokoll implementieren ProtIntertechno.h
 
-  Diese Funktion wird zeichenweise automatisch aufgerufen.
+ Analog dazu eine Decode- und Encodefunktion schreiben. Diese Funktion wird zeichenweise automatisch aufgerufen.
   ```
   char decodeIntertechno(char symbol,long value, char protocolID)
 {
