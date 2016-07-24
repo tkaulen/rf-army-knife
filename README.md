@@ -175,7 +175,28 @@ void onSetProtocol(char protID)
 
 
 ##Protokoll implementieren ProtIntertechno.h
-  
+
+Bit 0: 375μs hight + 1125μs low + 375μs hight + 1125μs low
+
+
+  ____              ____
+_|    |____________|    |____________
+Bit 1: 1125μs hight + 375μs low + 1125μs hight + 375μs low
+
+```
+  ____________      ____________
+_|            |____|            |____
+Bit F (floating): 375μs hight + 1125μs low + 1125μs hight + 375μs low
+
+
+  ____              ____________
+_|    |____________|            |____
+Bit sync:
+
+
+  ____                               
+_|    |______________________//_____
+```  
   Diese Funktion wird zeichenweise automatisch aufgerufen.
   ```
   char decodeIntertechno(char symbol,long value, char protocolID)
