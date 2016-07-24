@@ -10,7 +10,7 @@
 
 ####Informationsbefehle
 
-**H** - Hilfe
+**I** - Info
 ```
 ----- Availible Protocols: -----
 #0 raw mode
