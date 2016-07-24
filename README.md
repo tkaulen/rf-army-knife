@@ -96,6 +96,8 @@ encoder: custom
 
 ***a-f*** Syntax:a=firstSymbol:secondSymbol - Setzt eine Sequenz von 2 Symbolen.  Sequenzen werden mit einem Buchstaben zwischen A und F gekennzeichnet. Es ist möglich 2 aufeinanderfolgende Symbole als ein Symbol(Sequenz) zusammenzufassen. Ist z.B. ein Symbol 0 mit 300ys High und ein Symbol 1 mit 300ys Low definiert, dann lassen sich diese Symbole zu einer Sequenz zusammenfassen. Um Symbol 0 und 1 zu einer Sequenz a zusammen zu fassen wird folgende Syntax angewendet: a=01
 
+Das praktische daran ist, das man später in der Protokollimplementation sehr viel Code einsparen kann, weil man nicht mehr mühsam die Flankentimings auswerten muss. Da die Timings somit vom Protokollquellcode getrennt sind, lassen sich ganz einfach die Timings on the fly ändern, falls ein Gerät von den Timing leichte Abweichungen hat.
+
 ####Konfigurationsbefehle - Weitere
 
 ***R*** - Anzahl der Wiederholungen beim Senden des Datenpaketes. Syntax: R=Anzahl der Widerholungen
