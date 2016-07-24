@@ -76,13 +76,9 @@ encoder: custom
 
 **\{**Daten 010101010....**\}** - Definiert eine Zeichenkette für die Datenausgabe. Die Syntax ist abhängig vom ausgewältem Protokoll.
 
-#### Konfigurationsbefehle
+####Konfigurationsbefehle - Transceiver
 
 ***P*** - Protokoll auswählen. Syntax: P=Protokollnummer
-
-***R*** - Anzahl der Wiederholungen beim Senden des Datenpaketes. Syntax: R=Anzahl der Widerholungen
-
-***D*** - Debugmodus an/aus. Syntax: D=0 oder D=1
 
 ***F*** - Setzt die Frequenz in Herz Syntax F=Frequenz in Herz
 
@@ -93,6 +89,17 @@ encoder: custom
 ***D*** - Datenrate in Baud
 
 ***H*** - Frequenzhub in Herz
+
+###Konfigurationsbefehle - Decimator
+
+***0-9*** - Setzt ein Symbol mit den entsprechenden Timingwerten. Syntax:0=minTime:maxTime:duration. z.B. setze einen HIGH Pegel mit 150 ys beim senden. Das Symbol wird erkannt, wenn sich der Pegel zwischen 100 und 200 ys befindet 0=100:200:150. LOW Pegel werden mit einem negativem Vorzeichen gesetzt. z.B. 0=-200:-100:-150. Bei LOW-Definitionen ist zu beachten, das die Begrenzungswerte vertauscht werden, weil negative Vorzeichen umgekehrt gerechnet wird.  
+
+####Konfigurationsbefehle - Weitere
+
+***R*** - Anzahl der Wiederholungen beim Senden des Datenpaketes. Syntax: R=Anzahl der Widerholungen
+
+***D*** - Debugmodus an/aus. Syntax: D=0 oder D=1
+
 
 ##Syntax und Semantik
 
