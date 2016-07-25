@@ -78,9 +78,9 @@ encoder: custom
 
 **|>** - Daten aus Rohdatenrekorder senden
 
-**<|** - Daten aus Rohdatenrekorder durch den Decoder schicken
+**<|** - Daten aus dem Rohdatenrekorder durch den Decoder schicken
 
-**>|** - Daten senden UND in den Rohdatenrekorder schreiben
+**>|** - Daten in den Rohdatenrekorder schreiben anstatt zu senden
 
 #### Datenbefehle
 
