@@ -331,6 +331,7 @@ Jeder ist dazu eingeladen weitere Funkprotokolle hinzuzufügen. Schickt mir die 
 * Plugin für SDR#
 * Mehrere Protokolle an the fly gleichzeitg dekodieren
 * Port für Raspberry PI
+* Analog Frontend (IQ Mixer,Filter,Demodulatoren)
 
 
 
