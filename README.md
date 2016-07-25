@@ -76,11 +76,11 @@ encoder: custom
 
 **|<** - Daten Empfangen UND Rohdatenrekorder starten.
 
-**|>** - Daten aus Rohdatenrekorder senden
+**|>** - Daten aus dem Rohdatenrekorder senden
 
 **<|** - Daten aus dem Rohdatenrekorder durch den Decoder schicken
 
-**>|** - Daten in den Rohdatenrekorder schreiben anstatt zu senden
+**>|** - Daten vom Encoder in den Rohdatenrekorder schreiben anstatt zu senden
 
 #### Datenbefehle
 
