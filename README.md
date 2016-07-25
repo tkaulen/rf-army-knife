@@ -66,6 +66,8 @@ decoder: custom
 encoder: custom
 ```
 
+LR - List Rohdatenrekorder
+
 #### Sende - Empfangsbefehle
 
 **<** - Daten empfangen
