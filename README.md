@@ -74,6 +74,14 @@ encoder: custom
 
 **<>** - Daten senden, dannach empfangen
 
+**|<** - Daten Empfangen UND Rohdatenrekorder starten.
+
+**|>** - Daten aus Rohdatenrekorder senden
+
+**<|** - Daten aus Rohdatenrekorder durch den Decoder schicken
+
+**>|** - Daten senden UND in den Rohdatenrekorder schreiben
+
 #### Datenbefehle
 
 **\{**Daten 010101010....**\}** - Definiert eine Zeichenkette für die Datenausgabe. Die Syntax ist abhängig vom ausgewähltem Protokoll.
