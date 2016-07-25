@@ -33,7 +33,7 @@ Ziel dieses Projektes ist es, irgendwann einmal sämtliche Funkprotokolle abzude
  <> P = 2 F=433000000 {10f00 0000 00 f0}
 ```
 
-**L** - List
+**LS** - List symbols/sequences and cunfiguration state
 ```
 
 ----- Symbols -----
