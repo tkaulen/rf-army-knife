@@ -100,11 +100,11 @@ LR - List Rohdatenrekorder
 
 ***D*** - Datenrate in Baud
 
-***H*** - Frequenzhub in Herz
+***Q*** - Frequenzhub in Herz
 
 ###Konfigurationsbefehle - Decimator
 
-***0-9*** - Syntax:0=minTime:maxTime:duration - Definiert ein Symbol mit den entsprechenden Timingwerten.  Symbole werden als eine Zahl zwischen 0 und 9 definiert. Wir wollen z.B. das Symbol 0 mit einem HIGH Pegel von 150ys definieren. Außerdem soll das Symbol erkannt werden, wenn sich der Pegel zwischen 100ys HIGH  und 200ys HIGH befindet. Dazu setzen wir : 0=100:200:150. LOW Pegel werden mit einem negativem Vorzeichen gesetzt. Beispiel: 0=-200:-100:-150. Bei LOW-Definitionen ist zu beachten, das die Begrenzungswerte vertauscht werden, weil mit negative Vorzeichen umgekehrt gerechnet wird.  
+***0-9*** - Syntax:0=duration:minTime:maxTime - Definiert ein Symbol mit den entsprechenden Timingwerten.  Symbole werden als eine Zahl zwischen 0 und 9 definiert. Wir wollen z.B. das Symbol 0 mit einem HIGH Pegel von 150ys definieren. Außerdem soll das Symbol erkannt werden, wenn sich der Pegel zwischen 100ys HIGH  und 200ys HIGH befindet. Dazu setzen wir : 0=150:100:200. LOW Pegel werden mit einem negativem Vorzeichen gesetzt. Beispiel: 0=-150:-200:-100. Bei LOW-Definitionen ist zu beachten, das die Begrenzungswerte vertauscht werden, weil mit negative Vorzeichen umgekehrt gerechnet wird. Des weiteren ist die Variante duration:margin möglich. Margin gibt den Tolleranzbereich um den Duration Wert an. Beispiel: 0=150:50 ist das selbe wie 0=150:100:200, weil 150-50= 100 und 150+20=200.
 
 ***a-f*** - Syntax:a=firstSymbol:secondSymbol - Definiert eine Sequenz aus 2 aufeinanderfolgenden Symbolen.  Sequenzen werden mit einem Buchstaben zwischen a und f gekennzeichnet. Es ist möglich 2 aufeinanderfolgende Symbole als ein Symbol(Sequenz) zusammenzufassen. Wurde z.B. zuvor ein Symbol 0 mit 300ys High und ein Symbol 1 mit 300ys Low definiert, dann lassen sich diese beiden Symbole zu einer Sequenz zusammenfassen. Um Symbol 0 und 1 zu einer Sequenz a zusammen zu fassen, wird folgende Syntax angewendet: a=01
 
