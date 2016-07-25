@@ -327,5 +327,11 @@ return 0;
 
 Jeder ist dazu eingeladen weitere Funkprotokolle hinzuzufügen. Schickt mir die beiden Funktionen an armyknife@gmx.de. Ich baue die dann ein und Ihr werdet als Dankeschön in den Credits erwähnt.
 
+##ToDo's
+* Plugin für SDR#
+* Mehrere Protokolle an the fly gleichzeitg dekodieren
+* Port für Raspberry PI
+
+
 
 
