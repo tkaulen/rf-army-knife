@@ -10,6 +10,7 @@
 #include "config.h"
 
 
+long ccFrequency = 443000000;
 //#define AVRBoard
 
 
@@ -37,7 +38,7 @@ uint8_t CS_BIT;
 volatile uint8_t *CS_OUTPUTREGISTER;
 volatile uint8_t *CS_INPUTREGISTER;
 
-long ccFrequency = 443000000;
+
 
 
 

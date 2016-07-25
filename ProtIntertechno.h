@@ -2,10 +2,10 @@ void calcDecodeBuffer()
 {
   resetBitSumer();
    writeDecode('{');
-  for (int i = 0; i < decBufferPos; i++)
+  for (int i = 0; i < getDecBufferPos(); i++)
   {
     
-    char z = decBuffer[i];
+    char z = readDecBuffer(i);
     if (z=='f') sumBit(1);
     if (z=='0') sumBit(0);
     if (i==4)  // HouseCode
@@ -35,36 +35,36 @@ char decodeIntertechno(char symbol,long value, char protocolID)
 if (symbol == '5')
   {
     resetBuffer();
-    state = 1;
+    setState(1);
     
   }
 
-  switch (state)
+  switch (getState())
   {
     //	 Serial.print(symbol);
     case 0:
-      if (symbol == '5') state = 1;   return 0;
+      if (symbol == '5') setState(1);   return 0;
       break;
     case 1:
-    if (decBufferPos ==4) writeBuffer(' ');
-    if (decBufferPos ==9) writeBuffer(' ');
-    if (decBufferPos ==12) writeBuffer(' ');
+    if (getDecBufferPos() ==4) writeBuffer(' ');
+    if (getDecBufferPos() ==9) writeBuffer(' ');
+    if (getDecBufferPos() ==12) writeBuffer(' ');
     
      
       if (symbol == 'a')
 
       {
-        state = 2;
+        setState(2);
         return 0;
       }
       if (symbol == 'b') {
-        state = 3;
+        setState(3);
         return 0;
       }
       if (symbol == '3')
       {
-        state = 0;
-        if (decBufferPos == 15 && (    (decBuffer[13] == 'f'  || decBuffer[13] == '0') && (decBuffer[14] == 'f'  || decBuffer[14] == '0')    ) )   flushDecodeBuffer();
+        setState(0);
+        if (getDecBufferPos() == 15 && (    (readDecBuffer(13) == 'f'  || readDecBuffer(13) == '0') && (readDecBuffer(14) == 'f'  || readDecBuffer(14) == '0')    ) )   flushDecodeBuffer();
 
         return 0;
       }
@@ -74,7 +74,7 @@ if (symbol == '5')
     case 2:
       if (symbol == 'a')
       {
-        state = 1;
+        setState(1);
         writeBuffer('0');
       
         return 0;
@@ -82,7 +82,7 @@ if (symbol == '5')
 
       if (symbol == 'b')
       {
-        state = 1;
+        setState(1);
        
         writeBuffer('f');
         return 0;
@@ -92,7 +92,7 @@ if (symbol == '5')
     case 3:
       if (symbol == 'b')
       {
-        state = 1;
+        setState(1);
         writeBuffer('1');
         return 0;
       }
@@ -101,7 +101,7 @@ if (symbol == '5')
     case 4:
       if (symbol == '3')
       {
-        state = 0;
+        setState(0);
       }
     default:
       break;
