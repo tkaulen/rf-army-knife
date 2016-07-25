@@ -1,207 +1,30 @@
 /*
- * CC1001.c
- *
- * Created: 23.06.2016 11:52:47
- *  Author: thomas
- */
+Copyright (C) 2016 Thomas Kaulen
+
+ * Inspired by code from Dirk Tostmann, R.Koenig
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
 
 #include "CC1001.h"
 #include "Arduino.h"
 #include "config.h"
+#include "SoftwareSPI.h"
 
 
 long ccFrequency = 443000000;
-//#define AVRBoard
-
-
-///////////////// Soft SPI //////////////////////
-#ifdef AVRBoard
-uint8_t MISO_PORT;
-uint8_t MISO_BIT;
-volatile uint8_t *MISO_OUTPUTREGISTER;
-volatile uint8_t *MISO_INPUTREGISTER;
-
-
-uint8_t MOSI_PORT;
-uint8_t MOSI_BIT;
-volatile uint8_t *MOSI_OUTPUTREGISTER;
-volatile uint8_t *MOSI_INPUTREGISTER;
-
-
-uint8_t SCK_PORT;
-uint8_t SCK_BIT;
-volatile uint8_t *SCK_OUTPUTREGISTER;
-volatile uint8_t *SCK_INPUTREGISTER;
-
-uint8_t CS_PORT;
-uint8_t CS_BIT;
-volatile uint8_t *CS_OUTPUTREGISTER;
-volatile uint8_t *CS_INPUTREGISTER;
-
-
-
-
-
-
-void SoftSPI(void)
-{
-
- /* pinMode (51, OUTPUT);
-  digitalWrite(51, HIGH);
-  pinMode (49, OUTPUT);
-  digitalWrite(49, LOW);
-  pinMode (39, OUTPUT);
-  digitalWrite(39, HIGH);
-
-  pinMode (37, OUTPUT);
-  digitalWrite(37, LOW);
-
-  MISO_PORT = digitalPinToPort(MISO_PIN);
-  MISO_BIT = digitalPinToBitMask(MISO_PIN);
-  MISO_OUTPUTREGISTER = portOutputRegister(MISO_PORT);
-  MISO_INPUTREGISTER = portInputRegister(MISO_PORT);
-  pinMode (MISO_PIN, INPUT);
-
-  MOSI_PORT = digitalPinToPort(MOSI_PIN);
-  MOSI_BIT = digitalPinToBitMask(MOSI_PIN);
-  MOSI_OUTPUTREGISTER = portOutputRegister(MOSI_PORT);
-  MOSI_INPUTREGISTER = portInputRegister(MOSI_PORT);
-  pinMode (MOSI_PIN, OUTPUT);
-
-  SCK_PORT = digitalPinToPort(SCK_PIN);
-  SCK_BIT = digitalPinToBitMask(SCK_PIN);
-  SCK_OUTPUTREGISTER = portOutputRegister(SCK_PORT);
-  SCK_INPUTREGISTER = portInputRegister(SCK_PORT);
-  pinMode (SCK_PIN, OUTPUT);
-
-  CS_PORT = digitalPinToPort(CS_PIN);
-  CS_BIT = digitalPinToBitMask(CS_PIN);
-  CS_OUTPUTREGISTER = portOutputRegister(CS_PORT);
-  CS_INPUTREGISTER = portInputRegister(CS_PORT);
-  pinMode (CS_PIN, OUTPUT);
-
-  */
-
-}
-
-
-
-
-
-void csHigh(void)
-{
-  *CS_OUTPUTREGISTER |= CS_BIT;
-}
-
-void csLow(void)
-{
-  *CS_OUTPUTREGISTER &= ~ CS_BIT;
-}
-
-void sckHigh(void)
-{
-  *SCK_OUTPUTREGISTER |= SCK_BIT;
-}
-
-void sckLow(void)
-{
-  *SCK_OUTPUTREGISTER &= ~ SCK_BIT;
-}
-
-
-void mosiHigh(void)
-{
-  *MOSI_OUTPUTREGISTER |= MOSI_BIT;
-}
-
-void mosiLow(void)
-{
-  *MOSI_OUTPUTREGISTER &= ~ MOSI_BIT;
-}
-
-char misoGET(void)
-{
-  if (* MISO_INPUTREGISTER & MISO_BIT) return 1;
-  return 0;
-}
-
-
-#endif
-
-#ifdef ARMBoard
-void SoftSPI(void)
-{
-
- 
-
-}
-void csHigh(void)
-{
-
-}
-
-void csLow(void)
-{
-
-}
-
-void sckHigh(void)
-{
-
-}
-
-void sckLow(void)
-{
-
-}
-
-
-void mosiHigh(void)
-{
-
-}
-
-void mosiLow(void)
-{
-
-}
-
-char misoGET(void)
-{
-
-  return 0;
-}
-
-
-
-
-
-
-
-#endif
-
-
-unsigned char transfer(unsigned char data)
-{
-  unsigned char ret = 0;
-  unsigned char bitnum = 128;
-  unsigned char val;
-  unsigned char i = 0;
-
-  for (i = 0; i < 8; ++i) {
-    (data & bitnum) ? mosiHigh() : mosiLow();
-    sckHigh();
-
-    val = misoGET();
-    sckLow();
-    ret <<= 1;
-    ret |= (val == 0 ? 0 : 1);
-    bitnum >>= 1;
-  }
-  return ret;
-}
-
-
 
 /////////////////////// CC1001 //////////////////////
 
@@ -268,23 +91,26 @@ const uint8_t CC1100_INIT_CFG[] = {
 
 void ccInit(void)
 {
+  pinMode (51, OUTPUT);
+  digitalWrite(51, HIGH);
+  pinMode (49, OUTPUT);
+  digitalWrite(49, LOW);
+  pinMode (39, OUTPUT);
+  digitalWrite(39, HIGH);
+  pinMode (37, OUTPUT);
+  digitalWrite(37, LOW);
  SoftSPI();
-  //pinMode (CSPIN, OUTPUT);
-  // SPI.begin();
-  // SPI.setClockDivider(SPI_CLOCK_DIV16);
-  ccInitChip();
+ ccInitChip();
 }
 
 void CC1100_ASSERT(void)
 {
   csLow();
-  //digitalWrite(CSPIN, LOW);
 }
 
 void CC1100_DEASSERT(void)
 {
   csHigh();
-  // digitalWrite(CSPIN, HIGH);
 }
 
 uint8_t ccStrobe(uint8_t strobe)
@@ -298,7 +124,7 @@ uint8_t ccStrobe(uint8_t strobe)
 
 uint8_t cc1100_sendbyte(uint8_t data)
 {
-  return  transfer(data);;
+  return  transferSoftwareSPI(data);;
 }
 uint8_t cc1100_readReg(uint8_t addr)
 {
@@ -316,7 +142,6 @@ void cc1100_writeReg(uint8_t addr, uint8_t data)
   CC1100_DEASSERT();
 }
 
-
 void ccIdle(void)
 {
   ccStrobe(CC1100_SIDLE);
@@ -325,9 +150,6 @@ void ccIdle(void)
 
 void ccTX(void)
 {
-
-  
-
   cc1100_writeReg(2, 0x2d);
   uint8_t cnt = 0xff;
   // Going from RX to TX does not work if there was a reception less than 0.5
@@ -340,25 +162,17 @@ void ccTX(void)
 
 void ccRX(void)
 {
-
- 
-
   cc1100_writeReg(2, 0x0d);
-
   uint8_t cnt = 0xff;
-
   while (cnt-- &&
          (ccStrobe(CC1100_SRX) & CC1100_STATUS_STATE_BM) != CC1100_STATE_RX)
     delayMicroseconds(10);
 }
 
-
 void ccConfigAll(int radioID, char txrx, int protocolNr, int modulationType,  long frequency,  long bandwidth,  long drate,  long fhub,
 char changeRadioID, char changeTxrx, char changeProtocolNr, char changeModulationType,  char changeFrequency,  char changeBandwidth,  char changeDrate,   char changeFhub)
 {
   //ccInitChip();
-  
-  
   
 }
 
@@ -459,8 +273,6 @@ void ccInitChip(void)
   // setFrequency(433647);
   // setFrequency(433643);
   // setFrequency(433680);
-
-
 }
 
 uint32_t ccSetFrequency(uint32_t desiredFreq) {

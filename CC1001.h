@@ -1,40 +1,26 @@
 /*
- * CC1001.h
- *
- * Created: 23.06.2016 11:53:00
- *  Author: thomas
- */
+Copyright (C) 2016 Thomas Kaulen
 
+ * Inspired by code from Dirk Tostmann, R.Koenig
 
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
 
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
 
 #ifndef CC1001_H_
 #define CC1001_H_
 #include "Arduino.h"
-
-
-
-
-/////////////////// Soft SPI
-
-#define CSPIN  53
-#define MISO_PIN  47
-#define MOSI_PIN  45
-#define SCK_PIN  43
-#define CS_PIN  41
-void SoftSPI(void);
-
-void csHigh(void);
-void csLow(void);
-void sckHigh(void);
-void sckLow(void);
-void mosiHigh(void);
-void mosiLow(void);
-char misoGET(void);
-unsigned char transfer(unsigned char data);
-
-
-////////////////// CC1001/////////////////
 
 #define CC1100_IOCFG2           0x00    // GDO2 output pin configuration
 #define CC1100_IOCFG1           0x01    // GDO1 output pin configuration
@@ -214,14 +200,5 @@ void ccConfigChip(const uint8_t *data);
 uint32_t ccSetFrequency(uint32_t desiredFreq) ;
 void ccConfigAll(int radioID, char txrx, int protocolNr, int modulationType,  long frequency,  long bandwidth,  long drate,  long fhub,
 char changeRadioID, char changeTxrx, char changeProtocolNr, char changeModulationType,  char changeFrequency,  char changeBandwidth,  char changeDrate,   char changeFhub);
-
-
-
-
-
-
-
-
-
 
 #endif /* CC1001_H_ */

@@ -1,26 +1,32 @@
 /*
-* HighLevelProc.c
-*
-* Created: 23.06.2016 13:22:47
-*  Author: thomas
+Copyright (C) 2016 Thomas Kaulen
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #include "HighLevelProc.h"
 #include "Config.h"
- #include "ConstWriter.h"
+#include "ConstWriter.h"
 #include "HighLevelProtocols.h"
-
-
-
 
 sendTTL sendTTLDef;
 readSymbol writeOut;
 struct Symbol symbols[maxSymbol];
 struct Sequence sequences[maxSequence];
-
 decodeProtocolCallback decodeProtocol;
 encodeProtocolCallback encodeProtocol;
-
 radioConfigCallback radioConfig;
 
 char lastLevel = 0;
@@ -34,14 +40,12 @@ char sequenceCount = 0;
 short lastDValue = 0;
 char protocolID = 0;
 int repeat = 0;
-
 char txrx;
 int modulationType;
 long frequency;
 long bandwidth;
 long drate;
 long fhub;
-
 char oldtxrx = 0;
 int oldmodulationType = 0;
 long oldfrequency = 0;
@@ -49,105 +53,96 @@ long oldbandwidth = 0;
 long olddrate = 0;
 long oldfhub = 0;
 char oldprotocolID = 0;
-
 char state = 0;
 char decBuffer[decBufferSize];
 char decBufferPos = 0;
 char *parseBuffer;
 int parseBufferPos;
-
 char debugMode = 0;
 char tempBuffer[tempBufferSize];
 char printDescription = 0;
-
 char hasDecoder;
 char hasEncoder;
 char loopBack = 0;
-
 int linePos = 0;
 long lastTimestamp = 0;
 unsigned int bitSumer = 0;
 char bitSumerPos = 0;
 int encodeStep = 0;
 char dualDecoderState = 0;
-char rawRecorderState =0;
+char rawRecorderState = 0;
 short rawRecorderBuffer[rawRecorderSize];
-unsigned short rawRecorderPos; 
+unsigned short rawRecorderPos;
+char scanMode = 0;
 
 
-/*void onWriteDecodeRecive(char symbol)
+char getScanMode()
 {
-  readSymbolDef(symbol);
-}*/
-
+return scanMode;  
+  
+}
 
 void resetRawRecorder()
 {
-  rawRecorderPos =0;
-  
+  rawRecorderPos = 0;
 }
 
 void putRawRecorder(short value)
 {
-  if (rawRecorderPos <rawRecorderSize)
-     {
-        rawRecorderBuffer[rawRecorderPos] = value;
-        rawRecorderPos++;
-    }
+  if (rawRecorderPos < rawRecorderSize)
+  {
+    rawRecorderBuffer[rawRecorderPos] = value;
+    rawRecorderPos++;
+  }
 }
 
 void printRawRecorder()
 {
   writeConst("----- raw recorder content: -----\n");
-  int lineCounter =0; int lineNr =1;
+  int lineCounter = 0; int lineNr = 1;
   writeConst("[0] ");
-  for (int i=0; i< rawRecorderPos; i++)
+  for (int i = 0; i < rawRecorderPos; i++)
   {
-    writeDecodeInt(rawRecorderBuffer[i]); 
-   
+    writeDecodeInt(rawRecorderBuffer[i]);
+    char foundSymbol = findSymbol(rawRecorderBuffer[i]);
+    if (foundSymbol != -1)
+    {
+      writeDecode('{');
+      writeDecode(foundSymbol);
+      writeDecode('}');
+    }
     lineCounter ++;
-     if (lineCounter <=9) writeDecode(',');
+    if (lineCounter <= 9) writeDecode(',');
     if (lineCounter >= 10)
     {
-        writeDecode('\n');
+      writeDecode('\n');
       writeDecode('[');
-      writeDecodeInt(lineNr*10);
+      writeDecodeInt(lineNr * 10);
       writeDecode(']');
       writeDecode(' ');
-    
-      lineCounter =0;  
+
+      lineCounter = 0;
       lineNr++;
     }
-    
-    
-    
-    
-    
-    
-    
   }
-  
+
   writeDecode('\n');
-  
-  
-  
+  writeDecode('\n');
+  writeDecode('\n');
 }
 
 char isPrintDescription()
 {
-return printDescription;  
-  
+  return printDescription;
 }
+
 void resetDualDecoder()
 {
   dualDecoderState = 1;
-
 }
 
 char dualDecoder(char symbol, char refSymbol1, char refSumbol2)
 {
-
-
   switch (dualDecoderState)
   {
     case 1:
@@ -160,22 +155,16 @@ char dualDecoder(char symbol, char refSymbol1, char refSumbol2)
         dualDecoderState = 3;
         return 0;
       }
-
-
     case 2:
       if (symbol == refSymbol1)
       {
         dualDecoderState = 1;
-        // writeBuffer('0');
-
         return 1;
       }
 
       if (symbol == refSumbol2)
       {
         dualDecoderState = 1;
-
-        // writeBuffer('f');
         return 2;
       }
       break;
@@ -184,21 +173,16 @@ char dualDecoder(char symbol, char refSymbol1, char refSumbol2)
       if (symbol == refSymbol1)
       {
         dualDecoderState = 1;
-        // writeBuffer('1');
         return 3;
       }
-
       if (symbol == refSumbol2)
       {
         dualDecoderState = 1;
-        // writeBuffer('1');
         return 4;
       }
       break;
-
   }
   return -1;
-
 }
 
 void resetBitSumer()
@@ -209,19 +193,12 @@ void resetBitSumer()
 
 void sumBit(char bitValue)
 {
-
   if (bitValue) bitSumer |= 1 << bitSumerPos;
   bitSumerPos++;
 }
 
-
-
-
-
-
 int readLine(int readch, char *buffer, int len)
 {
-
   if (loopBack)
   {
     writeDecode(readch);
@@ -237,19 +214,17 @@ int readLine(int readch, char *buffer, int len)
       case '\n': // Ignore new-lines
         break;
       case '\r': // Return on CR
-        //dec->UnlockBuffer();
+
         rpos = linePos;
         if (txrx != radioIDLE && linePos == 0) {
-          txrx = radioIDLE; updateRadio();
+          txrx = radioIDLE; rawRecorderState = 0; updateRadio();
         }
         linePos = 0;  // Reset position index ready for next time
         resetParseBuffer();
         if (rpos != 0) parseCommandLine(parseBuffer);
-
-
         return rpos;
       default:
-        //dec->LockBuffer();
+
         if (linePos < len - 1) {
           parseBuffer[linePos++] = readch;
           parseBuffer[linePos] = 0;
@@ -261,87 +236,72 @@ int readLine(int readch, char *buffer, int len)
 }
 
 
-void printHelp()
+
+void printProtocols()
 {
+  char tempProtocol = protocolID;
   printDescription = 1;
-
-
-
-  writeConst("----- Availible Protocols: -----\n");
+  writeConst("1) ----- Protocols -----\n");
   writeConst("#0 raw mode\n");
-
   for (int i = 0; i < 100; i++)
   {
     setProtocol(i);
   }
 
+
+  protocolID = tempProtocol;
+  printDescription = 0;
+  writeConst("[P] selected protocol: ");
+  writeDecodeInt(protocolID);
   writeDecode('\n');
+  writeDecode('\n');
+}
+void printHelp()
+{
 
 
   writeConst("----- Examples: -----\n");
   writeConst("1) Send Intertechno(P=2) on 433 mhz repeat 5 with code 10f0000000f0\n");
   writeConst("    > P = 2 F=433000000 R=5  {10f0000000f0}\n");
   writeDecode('\n');
-
   writeConst("2) do the Same after call first example \n");
   writeConst("    > {10f0000000f0}\n");
   writeDecode('\n');
-
-
   writeConst("3) Recive Intertechno on 433 mhz (default frequency)\n");
   writeConst("    < P = 2 \n");
   writeDecode('\n');
-
   writeConst("4) Send Intertechno on 433 mhz and recive after send\n");
   writeConst(" <> P = 2 F=433000000 {10f0000000f0}\n");
   writeDecode('\n');
-
-
-  /// writeConst(" > P = 1 1=100:300:200 2=-300:-100:-200 a=12 {12a}\n");
-
-
   writeDecode('\n');
-
-
-  printDescription = 0;
-
-
+  writeDecode('\n');
 
 }
 
 void printSymbolTable()
 {
+  printProtocols();
 
-
-
-  writeConst("----- Symbols -----\n");
-
+  writeConst("2) ----- Symbols -----\n");
   writeConst("(duration:min:max or duration:tollerance example:1=150:100:200,1=150:50)\n");
-
-
-
-
   for (int i = 0; i < symbolCount; i++)
   {
     Symbol *s = &symbols[i];
     writeDecode('[');
     writeDecodeInt(i);
     writeDecode(']');
-
     writeConst(" duration:");
     writeDecodeInt(s->duration);
     writeConst(" min:");
     writeDecodeInt(s->min);
     writeConst(" max:");
     writeDecodeInt(s->max);
-    
     writeDecode('\n');
   }
 
   writeDecode('\n');
-  writeConst("----- Sequences -----\n");
+  writeConst("3) ----- Sequences -----\n");
   writeConst("(FirstSecond example:a=12)\n");
-
 
   for (int i = 0; i < sequenceCount; i++)
   {
@@ -353,12 +313,12 @@ void printSymbolTable()
     writeDecode('0' + q->a);
     writeConst(" second:");
     writeDecode('0' + q->b);
-
     writeDecode('\n');
   }
 
   writeDecode('\n');
-  writeConst("----- RF Tunings -----\n");
+  writeConst("4) ----- RF Tunings -----\n");
+
   writeConst("[F] frequency: ");
   writeDecodeInt(frequency); writeConst(" hz");
   writeDecode('\n');
@@ -376,21 +336,20 @@ void printSymbolTable()
   writeDecodeInt(drate); writeConst(" baud");
   writeDecode('\n');
 
-  writeConst("[Q] frequency hub: "); 
+  writeConst("[Q] frequency hub: ");
   writeDecodeInt(fhub);
   writeConst(" hz");
   writeDecode('\n');
 
-
-
-  writeConst("radio: ");
+  writeConst("    radio: ");
   if (txrx == radioIDLE) writeConst("idle");
   if (txrx == radioTX) writeConst("tx");
   if (txrx == radioRX) writeConst("rx");
   writeDecode('\n');
-
   writeDecode('\n');
-  writeConst("----- other Settings -----\n");
+
+
+  writeConst("5) ----- other Settings -----\n");
   writeConst("[D] debug mode(on,off): ");
   if (debugMode == 0) writeConst("off");
   if (debugMode == 1) writeConst("on");
@@ -400,50 +359,42 @@ void printSymbolTable()
   writeDecodeInt(repeat);
   writeDecode('\n');
 
-  writeConst("[P] protocol: ");
-  writeDecodeInt(protocolID);
-  writeDecode('\n');
-  
-   writeConst("[U] uart date rate: ");
+
+
+  writeConst("[U] uart date rate: ");
   writeDecodeInt(9600); writeConst(" baud");
   writeDecode('\n');
 
-  writeConst("decoder: ");
+  writeConst("    decoder: ");
   if (hasDecoder == 0) writeConst("none");
   if (hasDecoder == 1) writeConst("default");
   if (hasDecoder == 2) writeConst("custom");
-
   writeDecode('\n');
 
-  writeConst("encoder: ");
+  writeConst("    encoder: ");
   if (hasEncoder == 0) writeConst("none");
   if (hasEncoder == 1) writeConst("default");
   if (hasEncoder == 2) writeConst("custom");
-
   writeDecode('\n');
-  
-   writeConst("raw recorder: ");
-    if (rawRecorderState == 0) writeConst("off");
-    if (rawRecorderState == 1) writeConst("1");
-    if (rawRecorderState == 2) writeConst("2");
-    if (rawRecorderState == 3) writeConst("3");
-    if (rawRecorderState == 4) writeConst("4");
-    writeConst(" length: ");
-    writeDecodeInt(rawRecorderPos);
-    
-     writeDecode('\n');
-     
-      
-  
-  writeConst("state machine: ");
+
+  writeConst("    raw recorder: ");
+  if (rawRecorderState == 0) writeConst("stop");
+  if (rawRecorderState == 1) writeConst("record");
+  if (rawRecorderState == 2) writeConst("2");
+  if (rawRecorderState == 3) writeConst("3");
+  if (rawRecorderState == 4) writeConst("4");
+
+  writeConst(" length: ");
+  writeDecodeInt(rawRecorderPos);
+  writeDecode('\n');
+
+  writeConst("    state machine: ");
   writeDecodeInt(state);
   writeDecode('\n');
-
-
-
-
   writeDecode('\n');
-
+  writeDecode('\n');
+  writeDecode('\n');
+  writeDecode('\n');
 
 }
 
@@ -451,16 +402,11 @@ void printSymbolTable()
 
 void updateRadio()
 {
-
   if (oldtxrx != txrx ||  oldprotocolID != protocolID || oldmodulationType != modulationType || oldfrequency != frequency || oldbandwidth != bandwidth || olddrate != drate || oldfhub != fhub)
   {
-
     radioConfig(0, txrx, protocolID, modulationType, frequency,  bandwidth,  drate,  fhub, 0, oldtxrx != txrx, oldprotocolID != protocolID, oldmodulationType != modulationType, oldfrequency != frequency, oldbandwidth != bandwidth, olddrate != drate, oldfhub != fhub);
   }
-
-
   oldtxrx = txrx;  oldprotocolID = protocolID; oldmodulationType = modulationType; oldfrequency = frequency; oldbandwidth = bandwidth; olddrate = drate; oldfhub = fhub;
-
 }
 
 char decodeDefault(char symbol, long value, char protocolID)
@@ -486,39 +432,25 @@ void writeDecodeInt(long value)
     if (tempBuffer[i] == 0) break;
     writeDecode(tempBuffer[i]);
   }
-
-
 }
-
-
 
 void writeEncodeRaw(long time)
 {
-  
-
   if (debugMode == 1)
   {
     decodeStep(time);
-
-
   }
- 
-   // Serial.print(rawRecorderState,DEC);
-  if (rawRecorderState == 4) 
+  if (rawRecorderState == 4)
   {
     putRawRecorder(time);
   } else
   {
     sendTTLDef(time);
   }
-
-
-  
 }
 
 void writeEncode(char symbolSrc)
 {
- 
   char symbol = 0;
   if (symbolSrc >= 48 && symbolSrc <= 57)
   {
@@ -532,7 +464,6 @@ void writeEncode(char symbolSrc)
     Sequence *seq = &sequences[symbol - 10];
     if (seq->a != 0 && seq->b != 0)
     {
-
       Symbol *s1 = &symbols[seq->a];
       writeEncodeRaw(s1->duration);
       Symbol *s2 = &symbols[seq->b];
@@ -607,42 +538,46 @@ char desequenceStep(char symbol, short value, char sequenceStartPoint)
       return 0;
     }
   }
-
 }
 
 
-
-
-void decodeStep(long DValue)
+char findSymbol(long DValue)
 {
-
   short DValueDiv = DValue;
   if (DValue >= 32760) DValueDiv = 32760;
   if (DValue <= -32760) DValueDiv = -32760;
+  for (int i = 0; i < symbolCount; i++)
+  {
+    Symbol *s = &symbols[i];
+    if ( DValueDiv > s->min && DValueDiv < s->max)
+    {
+      return 48 + i;
+      break;
+    }
+  }
+  return -1;
+}
 
+void decodeStep(long DValue)
+{
+  short DValueDiv = DValue;
+  if (DValue >= 32760) DValueDiv = 32760;
+  if (DValue <= -32760) DValueDiv = -32760;
   if (protocolID == 0)
   {
     writeDecodeInt(DValue); writeDecode(' ');
   } else
   {
-
-    // char DSign = 0;
-    // if (DValueDiv > 0) DSign = 1;
-
     for (int i = 0; i < symbolCount; i++)
     {
       Symbol *s = &symbols[i];
-      //Serial.println(s->min);
-
       if ( DValueDiv > s->min && DValueDiv < s->max)
       {
         desequenceStep(i, DValue, s->sequenceStartPoint);
-
         break;
       }
     }
   }
-
 }
 
 void decodeTickDeltaTime(unsigned long  deltaTime, char level)
@@ -671,7 +606,6 @@ void decodeTickAbsoluteTime(unsigned long  absoluteTime, char level)
     }
     sumTime += (absoluteTime - lastTimestamp) ;
   }
-
   lastTimestamp = absoluteTime;
 }
 
@@ -683,11 +617,13 @@ void setHighLevelCallback(sendTTL func1, readSymbol func2, radioConfigCallback f
   sendTTLDef = func1;
   radioConfig = func3;
   initHighLevel();
+
+  setProtocol(protDefault);
+  updateRadio();
 }
 
 void sendSymbolString(char *symbolStr, int repeat)
 {
-  // radioConfig(-1, 1, -1, -1,  -1,  -1,  -1,  -1);
   for (int j = 0; j < repeat; j++)
   {
     for (int i = 0; i < 200; i++)
@@ -696,42 +632,30 @@ void sendSymbolString(char *symbolStr, int repeat)
       if (symbolStr[i] == 0) break;
     }
   }
-  //radioConfig(-1, 0, -1, -1,  -1,  -1,  -1,  -1);
 }
 
 
 void beginRecive()
 {
-
   txrx = radioRX;
   updateRadio();
-
-
 }
 void beginTransmit()
 {
-
   txrx = radioTX;
   updateRadio();
-
-
 }
 
 void endTransmitRecive()
 {
-
   txrx = radioIDLE;
   updateRadio();
-
-
 }
 
 void sendSymbol(short symbolSrc)
 {
   if (symbolSrc == '{')
   {
-
-
     encodeStep = 0;
   }
   if (protocolID == 0)
@@ -744,15 +668,13 @@ void sendSymbol(short symbolSrc)
   encodeStep++;
 }
 
-
 void initHighLevel()
 {
-
   resetHighLevel();
   oldtxrx = txrx;  oldprotocolID = protocolID; oldmodulationType = modulationType; oldfrequency = frequency; oldbandwidth = bandwidth; olddrate = drate; oldfhub = fhub;
   radioConfig(0, 0, 0, 0, 0,  0,  0,  0, 1, 1, 1, 1, 1, 1, 1, 1);
-
 }
+
 void resetHighLevel()
 {
   txrx = radioIDLE;
@@ -767,22 +689,16 @@ void resetHighLevel()
   repeat = 1;
   debugMode = 0;
   linePos = 0;
-
-
   state = 0;
   decBufferPos = 0;
-
   sumTime = 0;
   lastLevel = 0;
-  // setImplCallback(onWriteEncodeRecive, onWriteDecodeRecive, setSymbol, setSequence); :ToDo
-
   for (int i = 0; i < maxSymbol; i++)
   {
     struct Symbol *s = &symbols[i];
     s->min = 0; s->max = 0; s->duration = 0;
     s->sequenceStartPoint = 0;
   }
-
   for (int i = 0; i < maxSequence; i++)
   {
     struct Sequence *s = &sequences[i];
@@ -796,12 +712,11 @@ void prepare()
   for (int i = 0; i < maxSymbol; i++)
   {
     Symbol *s = &symbols[i];
-    if (s->duration!= 0)
+    if (s->duration != 0)
     {
       symbolCount = i + 1;
     }
   }
-
   sequenceCount = 0;
   for (int i = 0; i < maxSequence; i++)
   {
@@ -815,58 +730,60 @@ void prepare()
 
 void setSequence(unsigned char nr, char symbolA, char symbolB)
 {
-  char nrLocal = nr - 'a';
-  Sequence *s = &sequences[nrLocal];
-  s->a = symbolA -'0'; s->b = symbolB-'0';
-  prepare();
+  if (printDescription == 0)
+  {
+    char nrLocal = nr - 'a';
+    Sequence *s = &sequences[nrLocal];
+    s->a = symbolA - '0'; s->b = symbolB - '0';
+    prepare();
+  }
 }
 
-void setSymbolRange(unsigned char nr,short duration, short minTime, short maxTime)
+void setSymbolRange(unsigned char nr, short duration, short minTime, short maxTime)
 {
-  short minTimeDiv = minTime;
-  short maxTimeDiv = maxTime;
-  short durationDiv = duration;
-  char nrLocal = nr - 48;
-
-  Symbol *s = &symbols[nrLocal];
-  s->duration = durationDiv;
-
-  if (minTime < 0)
+  if (printDescription == 0)
   {
-    s->min = minTimeDiv; s->max = maxTimeDiv;
-  } else
-
-  {
-    s->min = minTimeDiv; s->max = maxTimeDiv;
+    short minTimeDiv = minTime;
+    short maxTimeDiv = maxTime;
+    short durationDiv = duration;
+    char nrLocal = nr - 48;
+    Symbol *s = &symbols[nrLocal];
+    s->duration = durationDiv;
+    if (minTime < 0)
+    {
+      s->min = minTimeDiv; s->max = maxTimeDiv;
+    } else
+    {
+      s->min = minTimeDiv; s->max = maxTimeDiv;
+    }
+    prepare();
   }
-  prepare();
 }
 
 void setSymbolMargin(unsigned char nr, short duration, float margin)
 {
   short marginLocal = abs(duration * margin);
-  setSymbolRange(nr,duration, duration - marginLocal, duration + marginLocal);
+  setSymbolRange(nr, duration, duration - marginLocal, duration + marginLocal);
 }
 
 void setSymbolAbsoluteMargin(unsigned char nr, short duration, short margin)
 {
- 
-  setSymbolRange(nr, duration,duration - margin, duration + margin);
+  setSymbolRange(nr, duration, duration - margin, duration + margin);
 }
 
 void setSymbolFullRange(unsigned char nr, short duration)
 {
-  setSymbolRange(nr,duration, -32762, 32762);
+  setSymbolRange(nr, duration, -32762, 32762);
 }
 
 void setSymbolFullRangeHigh(unsigned char nr, short duration)
 {
-  setSymbolRange(nr,duration, 1, 32762 );
+  setSymbolRange(nr, duration, 1, 32762 );
 }
 
 void setSymbolFullRangeLOW(unsigned char nr, short duration)
 {
-  setSymbolRange(nr, duration,-32762, -1 );
+  setSymbolRange(nr, duration, -32762, -1 );
 }
 
 char getState()
@@ -877,7 +794,7 @@ char getState()
 void setState(char value)
 {
   state = value;
-  
+
 }
 
 void resetBuffer()
@@ -885,13 +802,9 @@ void resetBuffer()
   decBufferPos = 0;
 }
 
-
-
 short getDecBufferPos()
 {
   return decBufferPos;
-  
-  
 }
 
 void writeBuffer(char symbol)
@@ -912,14 +825,11 @@ char readBuffer()
     return r;
   }
   return 0;
-
 }
 
 char readDecBuffer(short index)
 {
   return decBuffer[index];
-  
-  
 }
 
 void flushDecodeBuffer()
@@ -941,12 +851,6 @@ void flushEncodeBuffer()
   }
 }
 
-
-
-
-
-
-
 void writeBufferText(char *text)
 {
 
@@ -955,35 +859,25 @@ void writeBufferText(char *text)
     writeBuffer(text[i]);
     if (text[i] == 0) break;
   }
-
-
-
 }
-
 
 
 
 
 
 /////////////////Parser/////////////////
-
 void parseError()
 {
-
-
 }
 
 void resetParseBuffer()
 {
   parseBufferPos = 0;
-
 }
 
 char az()
 {
   return parseBuffer[parseBufferPos];
-
-
 }
 
 char next()
@@ -991,7 +885,6 @@ char next()
   if (az() == 0) return 0;
   parseBufferPos++;
   return az();
-
 }
 
 void skipBlank()
@@ -1009,9 +902,7 @@ char nextIgnoreBlank()
   next();
   skipBlank();
   return az();
-
 }
-
 
 long parseNumber()
 {
@@ -1021,8 +912,6 @@ long parseNumber()
     nextIgnoreBlank();
     sign = -1;
   }
-
-
   long number = 0;
   while (az() >= 48 && az() <= 57)
   {
@@ -1031,10 +920,7 @@ long parseNumber()
     if (az() >= 48 && az() <= 57) number *= 10;
   }
   skipBlank();
-
-
   return number * sign;
-
 }
 
 void parseData()
@@ -1042,35 +928,25 @@ void parseData()
   int startPos = parseBufferPos;
   if (az() == '{')
   {
-
     for (int i = 0; i < repeat; i++)
     {
       parseBufferPos = startPos;
       if (az() == '{')
       {
-
         sendSymbol(az());
         next();
-
         while (true)
         {
           char az = parseBuffer[parseBufferPos];
-          
           sendSymbol(az);
           if (az == '}') break;
           parseBufferPos++;
         }
         sendSymbol(az());
         nextIgnoreBlank();
-
       }
     }
-
   }
-
-
-
-
 }
 
 void parseSequence(char symbol)
@@ -1079,156 +955,117 @@ void parseSequence(char symbol)
   nextIgnoreBlank();
   char right = az();
   nextIgnoreBlank();
-  setSequence(symbol,left,right);
-
-
-
-
+  setSequence(symbol, left, right);
 }
 
 void parseSymbol(char symbol)
 {
-  char variant = 0; short right =0; short left=0;
+  char variant = 0; short right = 0; short left = 0;
   short duration = parseNumber();
   if (az() == ':')
   { nextIgnoreBlank();
-     left = parseNumber();
+    left = parseNumber();
     variant = 1;
   }
- if (az() == ':')
+  if (az() == ':')
   {
-   nextIgnoreBlank();
-   right = parseNumber();
-   variant = 2;
+    nextIgnoreBlank();
+    right = parseNumber();
+    variant = 2;
   }
   if (variant == 0) setSymbolAbsoluteMargin(symbol,  duration, 0);
   if (variant == 1) setSymbolAbsoluteMargin(symbol,  duration, left);
-  if (variant == 2) setSymbolRange(symbol,duration, left, right  );
-
+  if (variant == 2) setSymbolRange(symbol, duration, left, right  );
 }
 
 void parseModulationType()
 {
-  if (az()=='a')
+  if (az() == 'a')
   {
-    next(); 
+    next();
     modulationType = modAM;
-    
   }
-  
-  if (az()=='f')
+  if (az() == 'f')
   {
-    next(); 
+    next();
     modulationType = modFM;
-    
   }
-  
   nextIgnoreBlank();
-  
-  
-  
 }
 
-// > T=433000000 M=am 1=200:220:200 2=700:800:850 3=100:200:150 5=-2000:-1000:-1500 A=ab B=cd {FFF11100011F0010F}50
-// > T=433000000 M=am 1=200:220:200 2=700:800:850 4=100:200:150 5=-2000:-1000:-1500 A=ab B=cd
 char parseCommandLine(char *in)
 {
-
-
-  char tempTXRX = 0;
-
+  char tempTXRX = 0;  scanMode =0;
   parseBuffer = in;
   resetParseBuffer();
-
-
-if (az() == 'Z')
+  if (az() == 'Z')
   {
     resetRawRecorder();
-    rawRecorderState =0;
+    rawRecorderState = 0;
     return 0;
   }
 
- if (az() == 'C')
-  {
-    printRawRecorder();
-    return 0;
-  }
-
-  if (az() == 'H')
-  {
-    printHelp();
-    return 0;
-  }
 
   if (az() == 'L')
   {
-    printSymbolTable();
+    next();
+    if (az() == 'P')
+    {
+      printSymbolTable();
+    }
+    if (az() == 'R')
+    {
+      printRawRecorder();
+      rawRecorderState = 0;
+    }
+
+    if (az() == 'H')
+    {
+      printHelp();
+      return 0;
+    }
     return 0;
   }
-
-
   tempTXRX  = radioIDLE; char autoRX = 0;
   skipBlank();
-  
-  if (az() =='|')
- {
-   rawRecorderState = -1; next();
+  if (az() == '|')
+  {
+    rawRecorderState = -1; next();
   }
-
   if (az() == '<')
   {
     nextIgnoreBlank();
     if (rawRecorderState == -1)
     {
-       rawRecorderState = 1;
-       resetRawRecorder();
-     }
-  
-    if (az() =='|')
+      rawRecorderState = 1;
+      resetRawRecorder();
+    } else
     {
-     rawRecorderState = 3; nextIgnoreBlank();
-  
+      rawRecorderState = 0;
+    }
+
+    if (az() == '|')
+    {
+      rawRecorderState = 3; nextIgnoreBlank();
     }
     tempTXRX  = radioRX;
-  
-    
-    
-    
-   
-    
-    
-
   }
-
   if (az() == '>')
   {
     nextIgnoreBlank();
     if (rawRecorderState == -1) rawRecorderState = 2;
-   if (az() =='|')
-   {
-     
-     rawRecorderState = 4; nextIgnoreBlank();
-   }
-
-    
+    if (az() == '|')
+    {
+      rawRecorderState = 4; nextIgnoreBlank();
+    }
     if (tempTXRX  == radioRX) autoRX = 1;
-
-
     tempTXRX  = radioTX;
-
-    
-
   }
-
-
   char command = 0;
   skipBlank();
-
   while ((az() >= 'a' && az() <= 'z') || (az() >= 'A' && az() <= 'Z') || (az() >= 48 && az() <= 57))
   {
-    //  Serial.print(az());
     command = az(); nextIgnoreBlank();
-
     if (az() == '=')
     {
       nextIgnoreBlank();
@@ -1236,30 +1073,29 @@ if (az() == 'Z')
     switch (command)
     {
       case 'F':
-
         frequency = parseNumber();
-      
         break;
-        
-         case 'B':
 
+      case 'B':
         bandwidth = parseNumber();
-       
         break;
-        
-         case 'A':
-        drate = parseNumber();     
+
+      case 'A':
+        drate = parseNumber();
         break;
-        
-         case 'Q':
-        fhub = parseNumber();     
+
+      case 'Q':
+        fhub = parseNumber();
         break;
 
       case 'P':
-
-        setProtocol(parseNumber());
-
-
+        if (az() == 'S')
+        {
+          nextIgnoreBlank(); if (rawRecorderState == 3) scanMode = 1;
+        } else
+        {
+          setProtocol(parseNumber());
+        }
         break;
 
       case 'R':
@@ -1277,7 +1113,6 @@ if (az() == 'Z')
       case 'e':
       case 'f':
         parseSequence(command);
-
         break;
 
       case '0':
@@ -1291,182 +1126,167 @@ if (az() == 'Z')
       case '8':
       case '9':
         parseSymbol(command);
-
         break;
-        
-       case 'M':
-       parseModulationType();
-       break;
 
+      case 'M':
+        parseModulationType();
+        break;
       default: break;
-
     }
-
   }
-  
   if (rawRecorderState == 3)
   {
-    for (int i=0; i< rawRecorderPos; i++)
+    if (scanMode == 1)
+    { 
+      writeConst("Scanning protocols:\n");
+      for (int j=1; j<10;j++)
+      {
+       
+     // writeDecode('\n');
+        setProtocol(j);
+      for (int i = 0; i < rawRecorderPos; i++)
+      {
+        decodeStep(rawRecorderBuffer[i]);
+      }
+    //  writeDecode('\n');
+        
+     }
+     scanMode =0;
+     setProtocol(1);
+     writeDecode('\n');
+
+
+    } else
     {
-      
-       decodeStep(rawRecorderBuffer[i]); 
-      
+      for (int i = 0; i < rawRecorderPos; i++)
+      {
+        decodeStep(rawRecorderBuffer[i]);
+      }
     }
-    
-    rawRecorderState =0;
-    return 0;  
+      writeDecode('\n');
+    rawRecorderState = 0;
+    return 0;
+    scanMode =0;
   }
   
-  
+
   if (rawRecorderState == 2)
   {
     txrx = tempTXRX ;
     updateRadio();
-    for (int i=0; i< rawRecorderPos; i++)
+    for (int i = 0; i < rawRecorderPos; i++)
     {
       sendTTLDef(rawRecorderBuffer[i]);
-    //   decodeStep(rawRecorderBuffer[i]); 
-      
     }
-    
-     txrx = radioIDLE;
-     updateRadio();
-    
-    rawRecorderState =0;
-    return 0;  
+    txrx = radioIDLE; rawRecorderState = 0;
+    updateRadio();
+    rawRecorderState = 0;
+    return 0;
   }
-  
   txrx = tempTXRX ;
   updateRadio();
-
   parseData();
-
   if (tempTXRX != 0)
   {
     if (autoRX == 1)
     {
       txrx = radioRX;
       updateRadio();
-
     } else
     {
       if (txrx == radioTX)
       {
-        txrx = radioIDLE;
+        txrx = radioIDLE; rawRecorderState = 0 ;
         updateRadio();
       }
-
     }
   } else
   {
-    txrx = radioIDLE;
+    txrx = radioIDLE; rawRecorderState = 0;
     updateRadio();
-
   }
-  
   if (rawRecorderState == 4)
   {
-     rawRecorderState =0;  
-    
+    rawRecorderState = 0;
   }
-
-
   return 0;
-
 }
-
 
 void setDecodeProtocol(decodeProtocolCallback func)
 {
-  decodeProtocol = func;
+
+  if (printDescription == 0) decodeProtocol = func;
 }
 
 void setEncodeProtocol(encodeProtocolCallback func)
 {
-  encodeProtocol = func;
+  if (printDescription == 0)  encodeProtocol = func;
 }
 
 void setModulationType(char value)
 {
-modulationType = value;
+  if (printDescription == 0)  modulationType = value;
 }
 
 void setFrequency(long value)
 {
-frequency = value;  
-  
+  if (printDescription == 0) frequency = value;
 }
 
 void setBandwidth(long value)
 {
-  bandwidth = value;
-  
+  if (printDescription == 0)  bandwidth = value;
 }
 
 void setDrate(long value)
 {
-  drate = value;
-  
-  
+  if (printDescription == 0) drate = value;
 }
 
 void setFhub(long value)
 {
-  
-fhub = value;  
-  
+  if (printDescription == 0)  fhub = value;
 }
-  
-  
-
-
-
-
-
-
-//#include "HighLevelProtocols.h"
 
 char getProtocolID()
 {
-  
-return protocolID;  
-  
+  return protocolID;
 }
 
 void setProtocol(char protID)
 {
-  resetHighLevel();
+  if (printDescription == 0) resetHighLevel();
+
+
   protocolID = protID;
+
   onSetProtocol(protID);
-  prepare();
-
-  decBufferPos = 0;
-
-
-
-  if (decodeProtocol == 0)
+  if (printDescription == 0)
   {
-    hasDecoder = 0;
-  } else if (decodeProtocol == decodeDefault)
-  {
-    hasDecoder = 1;
-  } else
-  {
-    hasDecoder = 2;
+    prepare();
+    decBufferPos = 0;
+    if (decodeProtocol == 0)
+    {
+      hasDecoder = 0;
+    } else if (decodeProtocol == decodeDefault)
+    {
+      hasDecoder = 1;
+    } else
+    {
+      hasDecoder = 2;
+    }
+
+    if (encodeProtocol == 0)
+    {
+      hasEncoder = 0;
+    } else if (encodeProtocol == encodeDefault)
+    {
+      hasEncoder = 1;
+    } else
+    {
+      hasEncoder = 2;
+    }
   }
-
-  if (encodeProtocol == 0)
-  {
-    hasEncoder = 0;
-  } else if (encodeProtocol == encodeDefault)
-  {
-    hasEncoder = 1;
-  } else
-  {
-    hasEncoder = 2;
-  }
-
-
 
 }
 

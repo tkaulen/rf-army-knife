@@ -1,17 +1,26 @@
 /*
- * HighLevelProc.h
- *
- * Created: 23.06.2016 13:23:02
- *  Author: thomas
- */
+Copyright (C) 2016 Thomas Kaulen
 
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
 
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
 #ifndef HIGHLEVELPROC_H_
 #define HIGHLEVELPROC_H_
 #include "config.h"
 #include "Arduino.h"
 
+#define protScan -1
 #define protRaw  0
 #define protDefault  1
 #define protIntertechno  2
@@ -19,7 +28,6 @@
 
 #define decBufferSize 512
 #define tempBufferSize  33
-
 
 #define maxSymbol 10
 #define maxSequence 5
@@ -32,9 +40,6 @@
 #define radioIDLE 0
 #define radioTX 1
 #define radioRX 2
-
-
-
 
 struct Symbol
 {
@@ -61,6 +66,7 @@ typedef char (*encodeProtocolCallback)(char symbol,char protocolID);
 typedef void (*radioConfigCallback) (int radioID, char txrx, int protocolNr, int modulationType,  long frequency,  long bandwidth,  long drate,  long fhub,
 char changeRadioID, char changeTxrx, char changeProtocolNr, char changeModulationType,  char changeFrequency,  char changeBandwidth,  char changeDrate,   char changeFhub);
 
+char getScanMode();
 char isPrintDescription();
 void sumBit(char bitValue);
 void resetBitSumer();
@@ -73,6 +79,7 @@ void printHelp();
 void setProtocol(char protID);
 char getProtocolID();
 void resetParseBuffer();
+char findSymbol(long DValue);
 void decodeStep(long DValue);
 void decodeTickAbsoluteTime(unsigned long  absoluteTime, char level);
 void decodeTickDeltaTime(unsigned long  deltaTime, char level);
@@ -106,7 +113,6 @@ char getState();
 void setState(char value);
 char decodeDefault(char symbol, long value, char protocolID);
 char encodeDefault(char symbol, char protocolID);
-
 void setDecodeProtocol(decodeProtocolCallback func);
 void setEncodeProtocol(encodeProtocolCallback func);
 void setModulationType(char value);
@@ -114,5 +120,4 @@ void setFrequency(long value);
 void setBandwidth(long value);
 void setDrate(long value);
 void setFhub(long value);
-
 #endif /* HIGHLEVELPROC_H_ */
