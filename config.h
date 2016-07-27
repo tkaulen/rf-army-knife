@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define rxPin 35
 #define txPin 35
 
+#define rawRecorderSize 1600
+
 #define CC1101
 
 

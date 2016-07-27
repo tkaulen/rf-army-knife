@@ -31,7 +31,7 @@ void onRadioConfig(int radioID, char txrx, int protocolNr, int modulationType,  
   
   if (changeTxrx)
   {
-    Serial.println(txrx,DEC); 
+  //  Serial.println(txrx,DEC); 
       if (txrx  == radioTX) setIOTX();  
       if (txrx  == radioRX) setIORX(); 
       if (txrx  == radioIDLE) setIOTX();           
@@ -57,7 +57,14 @@ void setup() {
  initArduinoIO();
  setHighLevelCallback(onSendTTL, onReadSymbol,onRadioConfig);
  
- parseCommandLine(">| P=2 R= 36  {1111 1111 f1 f0} \n");
+ parseCommandLine(">| P=2 R= 1  {1111 1111 f1 f0} \n");
+ // parseCommandLine("> P=2 R= 10 D=1  {1111 1111 f1 f0} \n");
+  
+   // parseCommandLine("> P=2 R= 1 D=1  {} \n");
+  
+   parseCommandLine("> P=1 R= 2 D=0  {12} \n");
+  
+ //  parseCommandLine("> P=1 R= 36 D=1  {123435} \n");
  //parseCommandLine("> P=2 {10f0000000f0}");
 }
 

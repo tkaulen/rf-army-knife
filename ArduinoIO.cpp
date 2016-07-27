@@ -142,7 +142,7 @@ void onSendTTL(long deltaTime)
   unsigned long diffTime = start - oldTime;
   if (diffTime < ms) ms -= diffTime;
   if (deltaTime < 0 )setTXLevel(0); else setTXLevel(1);
-  if (ms < 1000000  )
+  if (ms < 1000000   )
   {
     while (true)
     {
