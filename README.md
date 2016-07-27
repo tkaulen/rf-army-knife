@@ -1,11 +1,12 @@
 # rf army knife (Achtung Alpha Stadium!!!)
 
 * Ein schweizer Taschenmesser für Funkprotokolle
-
 * plattformübergreifend
-* 
 * code unabhängig vom Transceivermodul
-*  leistungsstarke Analysetools, modular und erweiterbar aufgebaute Definition neuer Funkprotokolle, getrennte Handhabung von Timingwerten und der Protokollimplementierung, paralelle Echtzeitdekodierung von mehreren Protokollen gleichzeitig ohne weitere Codeanpassung (auf der selben Frequenz,Modulationsart e.t.c.)
+* leistungsstarke Analysetools
+* modular und erweiterbar aufgebaute Definition neuer Funkprotokolle
+* getrennte Handhabung von Timingwerten und der Protokollimplementierung
+* paralelle Echtzeitdekodierung von mehreren Protokollen gleichzeitig ohne weitere Codeanpassung (auf der selben Frequenz,Modulationsart e.t.c.)
 
 rf army knife ist ein embedded Softwareframework zur einfachen Implementierung und Debugging von benutzerdefinieren Funkprotokollen. Getestet habe ich die Implementierung auf den Arduino Board's Mega2560 und DUE, in Verbindung mit einem CC1101 Transceiver(Funkmodul) von Texas Instruments. Es können natürlich sehr einfach mit einer geringfügigen Anpassung auch andere Transceivermodule eingebunden werden, da die Codebasis Hardwareunabhängig ist. Das Framework eignet sich insbesondere für Anwendungen im 433/868 mhz ISM Band und vielen weiteren Protokollen, welche eine Bi-State Modulation (am,fm) einsetzen. Darunter fallen sämtliche Funk - Steckdosen/Türklingeln/Jalosien-Schalter/Garagentoröffner/ Wetterstationen/Heizungsthermostate/Alarmanlagen/Autoschlüssel/ Garagentoröffner und viele weitere Anwendungen im Berreich drahtloser Haus- und Industrieautomation. Das Konzept ist sehr generisch gehalten, sodass mit relativ wenigen Codezeilen neue Protokolle implementiert werden können. 
 
