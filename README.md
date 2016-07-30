@@ -214,116 +214,62 @@ void onSetProtocol(char protID)
 
  Analog dazu eine Decode- und Encodefunktion schreiben. Diese Funktion wird zeichenweise automatisch aufgerufen.
   ```
-  char decodeIntertechno(char symbol,long value, char protocolID)
+char decodeIntertechno(char symbol, long value, char protocolID)
 {
+ // writeDecode(symbol);
   
-if (symbol == '5')
+//  return 0;
+  if (symbol == '5')
   {
-    resetBuffer();
-    state = 1;
-    
+    resetBuffersAndSetState(1);
+    return 0;
   }
 
-  switch (state)
+  switch (getState())
   {
-    //	 Serial.print(symbol);
     case 0:
-      if (symbol == '5') state = 1;   return 0;
       break;
+
     case 1:
-    if (decBufferPos ==4) writeBuffer(' ');
-    if (decBufferPos ==9) writeBuffer(' ');
-    if (decBufferPos ==12) writeBuffer(' ');
-    
-     
-      if (symbol == 'a')
+      if (symbol == 'v') writeBuffer('0');
+      if (symbol == 'w') writeBuffer('1');
+      if (symbol == 'x') writeBuffer('f');
 
+      if (getTickCounter() == 4) writeBuffer(' ');
+      if (getTickCounter() == 8) writeBuffer(' ');
+      if (getTickCounter() == 10) writeBuffer(' ');
+
+      if ( getTickCounter() == 11)
       {
-        state = 2;
-        return 0;
+        if (symbol == 'x' || symbol == 'v') setState(2); else  resetBuffersAndSetState(0);
       }
-      if (symbol == 'b') {
-        state = 3;
-        return 0;
-      }
-      if (symbol == '3')
-      {
-        state = 0;
-        if (decBufferPos == 15 && (    (decBuffer[13] == 'f'  || decBuffer[13] == '0') && (decBuffer[14] == 'f'  || decBuffer[14] == '0')    ) )   flushDecodeBuffer();
 
-        return 0;
-      }
-      resetBuffer();
-
+      return 0;
       break;
+
     case 2:
-      if (symbol == 'a')
-      {
-        state = 1;
-        writeBuffer('0');
+     if (symbol == 'v') writeBuffer('0');
+     if (symbol == 'x') writeBuffer('f');
       
-        return 0;
-      }
-
-      if (symbol == 'b')
-      {
-        state = 1;
-       
-        writeBuffer('f');
-        return 0;
-      }
-      break;
-
-    case 3:
-      if (symbol == 'b')
-      {
-        state = 1;
-        writeBuffer('1');
-        return 0;
-      }
-      break;
-
-    case 4:
-      if (symbol == '3')
-      {
-        state = 0;
-      }
-    default:
+      if (symbol == 'x' || symbol == 'v') flushDecodeBuffer();
+      resetBuffersAndSetState(0);
       break;
   }
-  return 0;
-  
-  
 }
+
 
 char encodeIntertechno(char symbol, char protocolID)
 {
-  
-  if (symbol == '0')
-      {
-        writeEncode('a'); writeEncode('a'); // send symbol A (from set sequence) 300 ys High 1000 ys Low
-      }
+  if (symbol == '0') writeEncode('v'); // send symbol A (from set sequence) 300 ys High 1000 ys Low
+  if (symbol == '1') writeEncode('w');
+  if (symbol == 'f')  writeEncode('x');
 
-      if (symbol == '1')
-      {
-        writeEncode('b'); writeEncode('b');
-      }
-      if (symbol == 'f')
-      {
-        writeEncode('a'); writeEncode('b');
-      }
-      if (symbol == '{')  // start condition
-      {
-        writeEncode('5');
-      }
-      if (symbol == '}')  // end conbdition
-      {
-        writeEncode('3'); writeEncode('5');
-      }
-  
-return 0;  
-  
-  
+  if (symbol == '{')  writeEncode('5'); // start condition
+  if (symbol == '}')  // end conbdition
+  {
+    writeEncode('3'); writeEncode('5');
+  }
+  return 0;
 }
 ```
 
