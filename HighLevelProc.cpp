@@ -85,17 +85,28 @@ short rawRecorderBuffer[rawRecorderSize];
 unsigned short rawRecorderPos;
 char scanMode = 0;
 char paralellTaskCount = 0;
-char writeRawToConsole =0;
+char writeRawToConsole = 0;
 
 
+
+int getTickCounter()
+{
+  return en->tickCounter;
+
+}
+
+void resetTickCounter()
+{
+  en->tickCounter = 0;
+}
 
 void debugOut(long value)
 {
-Serial.print('<');
-Serial.print(value,DEC);
-Serial.print('>');
-  
-  
+  Serial.print('<');
+  Serial.print(value, DEC);
+  Serial.print('>');
+
+
 }
 
 char getScanMode()
@@ -219,7 +230,44 @@ void sumBit(char bitValue)
   en->bitSumerPos++;
 }
 
+
 int readLine(int readch, char *buffer, int len)
+{
+  if (readch >= 10) {
+     parseBuffer = buffer;
+
+    
+    if ((linePos < len - 1) && (readch != '\n' && readch != '\r'))
+    {
+      parseBuffer[linePos] = readch;
+      linePos++;
+     
+    }
+
+    if (readch == '\n' || readch == '\r')
+    {
+      
+      
+      if (linePos != 0)
+      {
+        txrx = radioIDLE; rawRecorderState = 0; updateRadio();
+      //  Serial.println("out");
+        parseBuffer[linePos] = 0; linePos++;
+        
+        Serial.println(parseBuffer);
+        resetParseBuffer();
+        parseCommandLine(parseBuffer);
+      }
+      linePos = 0;
+    }
+
+  }
+  return -1;
+
+
+}
+
+int readLine2(int readch, char *buffer, int len)
 {
   if (loopBack)
   {
@@ -229,21 +277,30 @@ int readLine(int readch, char *buffer, int len)
       writeDecode('\n');
     }
   }
-  parseBuffer = buffer;
+  Serial.println(readch, DEC);
   int rpos;
   if (readch > 0) {
+    if (txrx != radioIDLE && linePos == 0) {
+      //   txrx = radioIDLE; rawRecorderState = 0; updateRadio();
+    }
+
     switch (readch) {
       case '\n': // Ignore new-lines
-        break;
+      //   break;
       case '\r': // Return on CR
 
         rpos = linePos;
-        if (txrx != radioIDLE && linePos == 0) {
-          txrx = radioIDLE; rawRecorderState = 0; updateRadio();
-        }
+
         linePos = 0;  // Reset position index ready for next time
-        resetParseBuffer();
-        if (rpos != 0) parseCommandLine(parseBuffer);
+
+        if (rpos != 0)
+        {
+          txrx = radioIDLE; rawRecorderState = 0; updateRadio();
+          parseBuffer = buffer;
+          resetParseBuffer();
+          parseCommandLine(parseBuffer);
+
+        }
         return rpos;
       default:
 
@@ -258,6 +315,12 @@ int readLine(int readch, char *buffer, int len)
 }
 
 
+void writeNewLine()
+{
+  writeDecode('\n');
+  writeDecode('\r');
+
+}
 
 void printProtocols()
 {
@@ -304,48 +367,89 @@ void printSymbolTable()
 {
   printProtocols();
 
-  writeConst("2) ----- Symbols -----\n");
-  writeConst("(duration:min:max or duration:tollerance example:1=150:100:200,1=150:50)\n");
+  writeConst("2a) ----- Timing symbols -----\n");
+  writeConst("(0123456789=duration:min:max or duration:tollerance example:1=150:100:200,1=150:50)\n");
   for (int i = 0; i < en->symbolCount; i++)
   {
     Symbol *s = &en->symbols[i];
+
     writeDecode('[');
     writeDecodeInt(i);
     writeDecode(']');
-    writeConst(" duration:");
-    writeDecodeInt(s->duration);
-    writeConst(" min:");
-    writeDecodeInt(s->min);
-    writeConst(" max:");
-    writeDecodeInt(s->max);
+    if (s->duration == 0)
+    {
+      writeDecode(' ');
+      writeDecode('N');
+
+    } else
+    {
+      writeConst(" duration:");
+      writeDecodeInt(s->duration);
+      writeConst(" min:");
+      writeDecodeInt(s->min);
+      writeConst(" max:");
+      writeDecodeInt(s->max);
+    }
     writeDecode('\n');
   }
 
   writeDecode('\n');
-  writeConst("3) ----- Sequences -----\n");
-  writeConst("(FirstSecond example:a=12)\n");
+  writeConst("2b) ----- Dual sequences of timingsymbols-----\n");
+  writeConst("(abcdef=FirstSecond example:a=12)\n");
 
   for (int i = 0; i < en->sequenceCount; i++)
   {
     Sequence *q = &en->sequences[i];
     writeDecode('[');
-    writeDecode('a' + i);
+    writeDecode(q->name);
     writeDecode(']');
     writeConst(" first:");
     writeDecode( q->a);
     writeConst(" second:");
     writeDecode(q->b);
-    writeConst(" third:");
-    writeDecode( q->c);
-    writeConst(" fourth:");
-    writeDecode(q->d);
+
     writeDecode('\n');
-    
-   // debugOut(q->a);    debugOut(q->b);   debugOut(q->c);   debugOut(q->d);
+
+    // debugOut(q->a);    debugOut(q->b);   debugOut(q->c);   debugOut(q->d);
   }
 
   writeDecode('\n');
-  writeConst("4) ----- RF Tunings -----\n");
+  writeConst("2c) ----- Dual sub sequences -----\n");
+  writeConst("(vwxyz=FirstSecond example:v=a1)\n");
+
+  for (int i = 0; i < en->subSequenceCount; i++)
+  {
+    SubSequence *q = &en->subSequences[i];
+    writeDecode('[');
+    writeDecode(q->name);
+    writeDecode(']');
+    writeConst(" first:");
+    writeDecode( q->a);
+    writeConst(" second:");
+    writeDecode(q->b);
+
+    writeDecode('\n');
+
+    // debugOut(q->a);    debugOut(q->b);   debugOut(q->c);   debugOut(q->d);
+  }
+
+  writeDecode('\n');
+
+  writeConst("2d) ----- Symbol Commands -----\n");
+  writeConst("[s] Start Symbol: ");
+  writeDecode(en->startSymbol);
+  writeDecode('\n');
+
+  writeConst("[t] Terminal Symbol: ");
+  writeDecode(en->endSymbol);
+  writeDecode('\n');
+
+  writeConst("[i] Init Symbol: ");
+  writeDecode(en->initSymbol);
+  writeDecode('\n');
+
+  writeDecode('\n');
+  writeConst("3) ----- RF Tunings -----\n");
 
   writeConst("[F] frequency: ");
   writeDecodeInt(frequency); writeConst(" hz");
@@ -377,7 +481,7 @@ void printSymbolTable()
   writeDecode('\n');
 
 
-  writeConst("5) ----- other Settings -----\n");
+  writeConst("4) ----- other Settings -----\n");
   writeConst("[D] debug mode(on,off): ");
   if (debugMode == 0) writeConst("off");
   if (debugMode == 1) writeConst("on");
@@ -439,17 +543,42 @@ void updateRadio()
 
 char decodeDefault(char symbol, long value, char protocolID)
 {
-  writeDecode(symbol);
+  if (symbol == en->startSymbol)
+  {
+    writeDecode('{');
+
+  } else if (symbol == en->endSymbol)
+  {
+    writeDecode('}'); writeDecode('\n');
+
+  } else
+  {
+    writeDecode(symbol);
+  }
 }
 
 char encodeDefault(char symbol, char protocolID)
 {
-  writeEncode(symbol);
+  if (symbol == '{')
+  {
+    if (en->startSymbol != 'N') writeEncode(en->startSymbol);
+  }
+  else if (symbol == '}')
+  {
+    if (en->endSymbol != 'N') writeEncode(en->endSymbol);
+  }
+  else
+  {
+    writeEncode(symbol);
+  }
 }
 
 void writeDecode(short symbol)
 {
+
+
   writeOut(symbol);
+
 }
 
 void writeDecodeInt(long value)
@@ -476,69 +605,115 @@ void writeEncodeRaw(long time)
     if (writeRawToConsole == 1)
     {
       writeDecodeInt(time); writeDecode('\n');
-     
-     } else
-    { 
-        sendTTLDef(time);
-    
+
+    } else
+    {
+      sendTTLDef(time);
+
     }
   }
- // debugOut(time);
+  // debugOut(time);
 }
 
 void writeEncode(char symbolSrc)
 {
-  char symbol = 0;
-  
+  char symbolNr = 0;
+
   if (symbolSrc >= '0' && symbolSrc <= '9')
   {
-   
-    symbol = symbolSrc - 48;
-    
-    
-    Symbol *s = &en->symbols[symbol];
+    symbolNr = symbolSrc - '0';
+    Symbol *s = &en->symbols[symbolNr];
     // debugOut(symbol);
-  //   debugOut(s->duration);
+    //   debugOut(s->duration);
     if (s->duration != 0) writeEncodeRaw(s->duration);
   }
   if (symbolSrc >= 'a' && symbolSrc <= 'f')
   {
-    symbol = symbolSrc - 'a' + 10;
-    Sequence *seq = &en->sequences[symbol - 10];
-    
+    symbolNr = symbolSrc - 'a';
+    Sequence *seq = &en->sequences[symbolNr];
+
     if (seq->a != 'N')
     {
-      //Serial.print('<');    Serial.print(seq->a,DEC); Serial.print('>');
-      Symbol *s1 = &en->symbols[seq->a-'0'];
-      writeEncodeRaw(s1->duration);   
+
+      Symbol *s1 = &en->symbols[seq->a - '0'];
+      writeEncodeRaw(s1->duration);
     }
-    
+
     if (seq->b != 'N')
     {
-      Symbol *s1 = &en->symbols[seq->b-'0'];
-      writeEncodeRaw(s1->duration);   
+      Symbol *s1 = &en->symbols[seq->b - '0'];
+      writeEncodeRaw(s1->duration);
     }
-    
-    if (seq->c != 'N')
-    {
-      Symbol *s1 = &en->symbols[seq->c-'0'];
-      writeEncodeRaw(s1->duration);   
-    }
-    
-    if (seq->d != 'N')
-    {
-      Symbol *s1 = &en->symbols[seq->d-'0'];
-      writeEncodeRaw(s1->duration);   
-    }
-    
+
+
   }
+
+  if (symbolSrc >= 'v' && symbolSrc <= 'z')
+  {
+
+    symbolNr = symbolSrc - 'v';
+    SubSequence *subSeq = &en->subSequences[symbolNr];
+
+    if (subSeq->a >= 'a' && subSeq->a <= 'f')
+    {
+      symbolNr = subSeq->a - 'a';
+      Sequence *seq = &en->sequences[symbolNr];
+
+      Symbol *s = &en->symbols[seq->a - '0'];
+      writeEncodeRaw(s->duration);
+
+      s = &en->symbols[seq->b - '0'];
+      writeEncodeRaw(s->duration);
+    }
+
+    if (subSeq->b >= 'a' && subSeq->b <= 'f')
+    {
+      symbolNr = subSeq->b - 'a';
+      Sequence *seq = &en->sequences[symbolNr];
+
+      Symbol *s = &en->symbols[seq->a - '0'];
+      writeEncodeRaw(s->duration);
+
+      s = &en->symbols[seq->b - '0'];
+      writeEncodeRaw(s->duration);
+    }
+
+
+    if (subSeq->a >= '0' && subSeq->a <= '9')
+    {
+      Symbol *s = &en->symbols[subSeq->a - '0'];
+      writeEncodeRaw(s->duration);
+
+    }
+
+    if (subSeq->b >= '0' && subSeq->b <= '9')
+    {
+      Symbol *s = &en->symbols[subSeq->b - '0'];
+      writeEncodeRaw(s->duration);
+
+    }
+
+
+
+
+
+
+
+
+
+
+  }
+
+
+
 }
 
 void decodeSymbol(char symbol, long value)
 {
   en->decodeProtocol(symbol, value, en->protocolID);
-  
-  
+  en->tickCounter++;
+
+
 }
 
 char encodeSymbol(char symbol)
@@ -547,108 +722,136 @@ char encodeSymbol(char symbol)
 }
 
 
-
-char desequenceStep(char symbol, short value, char sequenceStartPoint)
+char desequenceSubStep(char symbol, short value, char sequenceStartPoint)
 {
-  
-  
-  switch (en->bpos)
+
+  // decodeSymbol(symbol,value);
+  //return 0;
+
+
+
+  switch (en->bposSub)
   {
     case 0:
-      en->prevSign1 = -1;  en->prevSign2 = -1;  en->prevSign3 = -1;
-      en->prevSignValue1 = -1;  en->prevSignValue2 = -1;  en->prevSignValue3 = -1;
-      
-      for (int i = sequenceStartPoint; i < en->sequenceCount; i++)
+      //en->prevSign1Sub = -1;
+      //en->prevSignValue1Sub = -1;
+      //en->prevFound1Sub = -1;
+
+      for (int i = sequenceStartPoint; i < en->subSequenceCount; i++)
       {
-        Sequence *s = &en->sequences[i];
- 
+        SubSequence *s = &en->subSequences[i];
+
         if (s->a == symbol)
         {
-          
-          en->bpos = 1;
-          en->prevSign1 = symbol;
-          en->prevSignValue1 = value;
+
+          en->bposSub = 1;
+          en->prevSign1Sub = symbol;
+          en->prevSignValue1Sub = value;
+          en->prevFound1Sub = i;
           return 0;
         }
       }
       decodeSymbol(symbol, value);
-      en->bpos = 0;
+      en->bposSub = 0;
 
       return 0;
 
     case 1:
-   // debugOut(symbol);
 
-      for (int i = sequenceStartPoint; i < en->sequenceCount; i++)
+
+      for (int i = sequenceStartPoint; i < en->subSequenceCount; i++)
       {
-        Sequence *s = &en->sequences[i];
-        if (s->a==en->prevSign1 &&  s->b == symbol)
+        SubSequence *s = &en->subSequences[i];
+        if (s->a == en->prevSign1Sub &&  s->b == symbol)
         {
-       
-          if (s->c == 'N')
-          {
-        //   debugOut(s->b); debugOut('a'+ i);debugOut( i);
-            
-           
-            decodeSymbol('a' + i, value);
-            en->bpos = 0;
 
-          } else
-          {
-            en->prevSign2 = symbol;
-            en->prevSignValue2 = value;
-            en->bpos = 2;
-          }
+          decodeSymbol('v' + i, value);
+          en->bposSub = 0;
           return 0;
+
         }
       }
 
-      decodeSymbol(en->prevSign1, en->prevSignValue1); decodeSymbol(symbol, value);
-      en->bpos = 0;
-      return 0;
-
-    case 2:
-
-      for (int i = sequenceStartPoint; i < en->sequenceCount; i++)
-      {
-        Sequence *s = &en->sequences[i];
-        if (s->a == en->prevSign1 && s->b == en->prevSign2 &&  s->c == symbol)
-        {
-          if (s->d == 'N')
-          {
-            decodeSymbol('a' + i, value);
-            en->bpos = 0;
-
-          } else
-          {
-            en->prevSign3 = symbol;
-            en->prevSignValue3 = value;
-            en->bpos = 3;
-          }
-          return 0;
-        }
-      }
-
-      decodeSymbol(en->prevSign1, en->prevSignValue1); decodeSymbol(en->prevSign2, en->prevSignValue2);  decodeSymbol(symbol, value);
-      en->bpos = 0;
-      return 0;
-
-    case 3:
-      for (int i = sequenceStartPoint; i < en->sequenceCount; i++)
-      {
-        Sequence *s = &en->sequences[i];
-        if (s->a == en->prevSign1 && s->b == en->prevSign2 && s->c == en->prevSign3 && s->d == symbol)
-        {
-          decodeSymbol('a' + i, value);
-          en->bpos = 0;
-          return 0;
-        }
-      }
-
-      decodeSymbol(en->prevSign1, en->prevSignValue1); decodeSymbol(en->prevSign2, en->prevSignValue2); decodeSymbol(en->prevSign3, en->prevSignValue3); decodeSymbol(symbol, value);
-      en->bpos = 0;
+      
+      //Original
+     // decodeSymbol(en->prevSign1Sub, en->prevSignValue1Sub); decodeSymbol(symbol, value);
+     // en->bposSub = 0;
+      
+      //Alternativ
+       en->bposSub = 1;
+       decodeSymbol(en->prevSign1Sub, en->prevSignValue1Sub);
+       en->prevSign1Sub = symbol; en->prevSignValue1Sub = value;
       return 0;
   }
+
+  return 0;
+}
+
+
+
+
+char desequenceStep(char symbol, short value, char sequenceStartPoint)
+{
+
+
+  switch (en->bpos)
+  {
+    case 0:
+      //en->prevSign1 = -1;
+      //en->prevSignValue1 = -1;
+      //en->prevFound1 = -1;
+
+      for (int i = sequenceStartPoint; i < en->sequenceCount; i++)
+      {
+        Sequence *s = &en->sequences[i];
+
+        if (s->a == symbol)
+        {
+
+          en->bpos = 1;
+          en->prevSign1 = symbol;
+          en->prevSignValue1 = value;
+          en->prevFound1 = i;
+          return 0;
+        }
+      }
+      en->bpos = 0;
+      desequenceSubStep(symbol, value, 0);
+      //     decodeSymbol(symbol, value);
+
+
+      return 0;
+
+    case 1:
+
+
+      for (int i = sequenceStartPoint; i < en->sequenceCount; i++)
+      {
+        Sequence *s = &en->sequences[i];
+        if (s->a == en->prevSign1 &&  s->b == symbol)
+        {
+          en->bpos = 0;
+          desequenceSubStep(s->name, value, 0);
+
+          return 0;
+
+        }
+      }
+
+    //Original
+   //   en->bpos = 0;
+   //   desequenceSubStep(en->prevSign1, en->prevSignValue1, 0); desequenceSubStep(symbol, value, 0);
+
+      ///alternativ
+       en->bpos = 1;
+       desequenceSubStep(en->prevSign1, en->prevSignValue1, 0);
+       en->prevSign1 = symbol; en->prevSignValue1 = value;
+
+
+
+      return 0;
+  }
+
   return 0;
 }
 
@@ -673,10 +876,12 @@ char findSymbol(long DValue)
 
 void decodeStep(long DValue)
 {
- 
+
+
+  //Serial.println(DValue,DEC);
   short DValueDiv = DValue;
-  if (DValue >= 32760) DValueDiv = 32760;
-  if (DValue <= -32760) DValueDiv = -32760;
+  if (DValue >= maxRange) DValueDiv = maxRange;
+  if (DValue <= minRange) DValueDiv = minRange;
   if (en->protocolID == 0)
   {
     writeDecodeInt(DValue); writeDecode(' ');
@@ -685,20 +890,26 @@ void decodeStep(long DValue)
     for (int i = 0; i < en->symbolCount; i++)
     {
       Symbol *s = &en->symbols[i];
-      if ( DValueDiv > s->min && DValueDiv < s->max)
+      if ( DValueDiv >= s->min && DValueDiv <= s->max)
       {
-        
-        desequenceStep('0'+i, DValue, s->sequenceStartPoint);
+        if (s->name == en->initSymbol)
+        {
+          en->bpos = 0; en->bposSub = 0;
+
+        }
+
+        desequenceStep(s->name, DValue, s->sequenceStartPoint);
         break;
       }
     }
   }
 }
 
-void decodeTickDeltaTime(unsigned long  deltaTime, char level)
+void decodeTickDeltaTime(unsigned long  deltaTime, char inputLevel)
 {
   if (txrx == radioRX)
   {
+    char level = inputLevel;
     if (lastLevel != level)
     {
       decodeStep(lastLevel * sumTime);
@@ -709,10 +920,12 @@ void decodeTickDeltaTime(unsigned long  deltaTime, char level)
   }
 }
 
-void decodeTickAbsoluteTime(unsigned long  absoluteTime, char level)
+void decodeTickAbsoluteTime(unsigned long  absoluteTime, char inputLevel)
 {
   if (txrx == radioRX)
   {
+    char level = inputLevel;
+    if (level == 0) level = -1;
     if (lastLevel != level)
     {
       decodeStep(lastLevel * sumTime);
@@ -736,7 +949,7 @@ void setHighLevelCallback(sendTTL func1, readSymbol func2, radioConfigCallback f
   // en->symbols[0].duration =11111;
 
 
-  
+
   writeOut = func2;
   sendTTLDef = func1;
   radioConfig = func3;
@@ -806,17 +1019,27 @@ void enviromentReset()
   en->decBufferPos = 0;
   en->symbolCount = 0;
   en->sequenceCount = 0;
+  en->subSequenceCount = 0;
+  en->bpos = 0;
+  en->bposSub = 0;
+  resetBuffersAndSetState(0);
 
   for (int i = 0; i < maxSymbol; i++)
   {
     struct Symbol *s = &en->symbols[i];
-    s->min = 0; s->max = 0; s->duration = 0;
+    s->min = 0; s->max = 0; s->duration = 0; s->name = 'N';
     s->sequenceStartPoint = 0;
   }
   for (int i = 0; i < maxSequence; i++)
   {
     struct Sequence *s = &en->sequences[i];
-    s->a = 'N'; s->b = 'N'; s->c = 'N'; s->d = 'N';
+    s->a = 'N'; s->b = 'N'; s->name = 'N';
+  }
+
+  for (int i = 0; i < maxSubSequence; i++)
+  {
+    struct SubSequence *s = &en->subSequences[i];
+    s->a = 'N'; s->b = 'N'; s->name = 'N';
   }
 
 
@@ -855,32 +1078,63 @@ void prepare()
   for (int i = 0; i < maxSequence; i++)
   {
     Sequence *s = &en->sequences[i];
-    if (s->a != 'N' || s->b != 'N' || s->c != 'N' || s->d != 'N')
+    if (s->a != 'N' || s->b != 'N')
     {
       en->sequenceCount = i + 1;
+    }
+  }
+
+  en->subSequenceCount = 0;
+  for (int i = 0; i < maxSubSequence; i++)
+  {
+    SubSequence *s = &en->subSequences[i];
+    if (s->a != 'N' || s->b != 'N')
+    {
+      en->subSequenceCount = i + 1;
     }
   }
 }
 
 
-void setSequence(unsigned char nr, char symbolA, char symbolB, char symbolC, char symbolD)
+void setSequence(unsigned char nr, char symbolA, char symbolB)
 {
   if (printDescription == 0)
   {
-    char nrLocal = nr - 'a';
-    Sequence *s = &en->sequences[nrLocal];
-    s->a ='N'; s->b = 'N'; s->c= 'N'; s->d='N';
+    if (nr >= 'a' && nr <= 'f')
+    {
+      char nrLocal = nr - 'a';
+      Sequence *s = &en->sequences[nrLocal];
+      s->a = 'N'; s->b = 'N';
+      if (symbolA != 'N')  s->a = symbolA ;
+      if (symbolB != 'N')  s->b = symbolB ;
+      s->name = nr;
+    }
+
+    if (nr >= 'v' && nr <= 'z')
+    {
+      char nrLocal = nr - 'v';
+      SubSequence *s = &en->subSequences[nrLocal];
+      s->a = 'N'; s->b = 'N';
+      if (symbolA != 'N')  s->a = symbolA ;
+      if (symbolB != 'N')  s->b = symbolB ;
+      s->name = nr;
+
+    }
+    prepare();
+
+  }
+}
+
+void setSubSequence(unsigned char nr, char symbolA, char symbolB)
+{
+  if (printDescription == 0)
+  {
+    char nrLocal = nr - 'v';
+    SubSequence *s = &en->subSequences[nrLocal];
+    s->a = 'N'; s->b = 'N';
     if (symbolA != 'N')  s->a = symbolA ;
     if (symbolB != 'N')  s->b = symbolB ;
-   
-    if (symbolC != 'N')  s->c = symbolC ;
-    if (symbolD != 'N')  s->d = symbolD ;
-    
-   
-    
- 
-    
-  
+    s->name = nr;
     prepare();
   }
 }
@@ -893,14 +1147,22 @@ void setSymbolRange(unsigned char nr, short duration, short minTime, short maxTi
     short maxTimeDiv = maxTime;
     short durationDiv = duration;
     char nrLocal = nr - 48;
+
     Symbol *s = &en->symbols[nrLocal];
-    s->duration = durationDiv;
+    s->duration = durationDiv;  s->name = nr;
     if (minTime < 0)
     {
       s->min = minTimeDiv; s->max = maxTimeDiv;
     } else
     {
       s->min = minTimeDiv; s->max = maxTimeDiv;
+    }
+
+    if (s->min == 0 && s->max == 0) duration = 0;
+    if (s->duration == 0)
+    {
+      s->min = 0; s->max = 0;
+
     }
     prepare();
   }
@@ -940,6 +1202,15 @@ char getState()
 void setState(char value)
 {
   en->state = value;
+
+}
+
+void resetBuffersAndSetState(char value)
+{
+  resetTickCounter();
+  resetBuffer();
+  setState(value);
+
 
 }
 
@@ -986,7 +1257,7 @@ void flushDecodeBuffer()
     writeDecode(en->decBuffer[i]);
   }
   writeDecode('}');
-  writeDecode('\n');
+  writeNewLine();
 }
 
 void flushEncodeBuffer()
@@ -1080,18 +1351,18 @@ void parseData()
       if (az() == '{')
       {
         sendSymbol(az());
-        
+
         next();
         while (true)
         {
           char az = parseBuffer[parseBufferPos];
-         
-            sendSymbol(az);
-          
+
+          sendSymbol(az);
+
           if (az == '}') break;
           parseBufferPos++;
         }
-     
+
         nextIgnoreBlank();
       }
     }
@@ -1103,36 +1374,40 @@ void parseData()
 void parseSequence(char symbol)
 {
   char first = 'N';
-  if (az() >'0' && az() <='9')
-  { 
+  if (az() > '0' && az() <= '9')
+  {
     first = az();
     nextIgnoreBlank();
   }
   char second = 'N';
-  if (az() >'0' && az() <='9')
-  { 
-    second=az();
+  if (az() > '0' && az() <= '9')
+  {
+    second = az();
     nextIgnoreBlank();
   }
-  
-  char third = 'N';
-  if (az() >'0' && az() <='9')
-  { 
-    third = az();
-    nextIgnoreBlank();
-  }
-  
-  char fourth = 'N';
-  if (az() >'0' && az() <='9')
-  { 
-    fourth = az();
-    nextIgnoreBlank();
-  }
-  
-  
- 
-  setSequence(symbol, first,second,third,fourth);
+
+  setSequence(symbol, first, second);
 }
+
+
+void parseSubSequence(char symbol)
+{
+  char first = 'N';
+  if ((az() > '0' && az() <= '9') || (az() >= 'a' && az() <= 'f' ))
+  {
+    first = az();
+    nextIgnoreBlank();
+  }
+  char second = 'N';
+  if ((az() > '0' && az() <= '9') || (az() >= 'a' && az() <= 'f' ))
+  {
+    second = az();
+    nextIgnoreBlank();
+  }
+
+  setSequence(symbol, first, second);
+}
+
 
 void parseSymbol(char symbol)
 {
@@ -1174,7 +1449,7 @@ char parseCommandLine(char *in)
   char tempTXRX = 0;  scanMode = 0;
   parseBuffer = in;
   resetParseBuffer();
-  writeRawToConsole =0;
+  writeRawToConsole = 0;
   if (az() == 'Z')
   {
     resetRawRecorder();
@@ -1231,23 +1506,23 @@ char parseCommandLine(char *in)
   {
     nextIgnoreBlank();
     if (rawRecorderState == -1) rawRecorderState = 2;
-    
-    if (az() =='$')
+
+    if (az() == '$')
     {
       nextIgnoreBlank();
-      writeRawToConsole =1;
-      
-      
+      writeRawToConsole = 1;
+
+
     }
-    
-    if (az() =='?')
+
+    if (az() == '?')
     {
       nextIgnoreBlank();
       debugMode = 1;
-      
-      
+
+
     }
-    
+
     if (az() == '|')
     {
       rawRecorderState = 4; nextIgnoreBlank();
@@ -1307,6 +1582,15 @@ char parseCommandLine(char *in)
       case 'e':
       case 'f':
         parseSequence(command);
+        break;
+
+      case 'v':
+      case 'w':
+      case 'x':
+      case 'y':
+      case 'z':
+
+        parseSubSequence(command);
         break;
 
       case '0':
@@ -1380,11 +1664,11 @@ char parseCommandLine(char *in)
   if (writeRawToConsole == 1)
   {
     parseData();
-    writeRawToConsole  =0;
-    
-    return 0;  
+    writeRawToConsole  = 0;
+
+    return 0;
   }
-  
+
   txrx = tempTXRX ;
   updateRadio();
   parseData();

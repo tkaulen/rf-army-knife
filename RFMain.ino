@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "CC1001.h"
 
-char inputBuffer[512];
+char inputBuffer[256];
 
 void onRadioConfig(int radioID, char txrx, int protocolNr, int modulationType,  long frequency,  long bandwidth,  long drate,  long fhub, char changeRadioID, char changeTxrx, char changeProtocolNr, char changeModulationType,  char changeFrequency,  char changeBandwidth,  char changeDrate,   char changeFhub)
 {
@@ -57,12 +57,18 @@ void setup() {
  initArduinoIO();
  setHighLevelCallback(onSendTTL, onReadSymbol,onRadioConfig);
  
- parseCommandLine(">| P=2 R= 1  {1111 1111 f1 f0} \n");
- // parseCommandLine("> P=2 R= 10 D=1  {1111 1111 f1 f0} \n");
+ parseCommandLine(">| P=2 R=3  {1111 1111 f1 f0} \n");
+ // parseCommandLine(">| P=1 R= 1 v=ab w=ba  {vaw12} \n");
+  
+  // parseCommandLine(">| P=1 R= 3  {5vwx3} \n");
+  //  parseCommandLine(">| P=1 R= 1 v=a1   {321321} \n");
+    // parseCommandLine(">| P=1 R= 1   {321321} \n");
+ //      parseCommandLine(">| P=1 R= 1 v=a1   {v} \n");
+ // parseCommandLine("> P=2 R= 10 D=1  {1111 1111 f1 f0} \n");LR
   
    // parseCommandLine("> P=2 R= 1 D=1  {} \n");
   
-   parseCommandLine("> P=1 R= 2 D=0  {12} \n");
+ //  parseCommandLine("> P=1 R= 2 D=0  {12} \n");
   
  //  parseCommandLine("> P=1 R= 36 D=1  {123435} \n");
  //parseCommandLine("> P=2 {10f0000000f0}");
@@ -77,8 +83,10 @@ void loop() {
  //   unsigned int  t = TCNT1;
  //   TCNT1 =0;
   //    decodeTickDeltaTime(t,getRXLevel());
-//  decodeTickAbsoluteTime(micros(),getRXLevel());
-
+  decodeTickAbsoluteTime(micros(),getRXLevel());
+  
+//  Serial.print(getRXLevel(),DEC);
+// parseCommandLine("> P=2 R=3  {1111 1111 f1 f0} \n");
    char chRead = Serial.read(); 
  
    if (chRead != -1)

@@ -20,18 +20,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "config.h"
 #include "Arduino.h"
 
+#define maxRange 32762
+#define minRange -32762
+
 #define protScan -1
 #define protRaw  0
 #define protDefault  1
 #define protIntertechno  2
 #define protIntertechnoLong  3
 
-#define decBufferSize 512
+
 #define tempBufferSize  33
 
 #define maxSymbol 10
 #define maxSequence 5
-#define maxEnviroments 2
+#define maxSubSequence 5
+#define maxEnviroments 1
 
 
 
@@ -58,19 +62,28 @@ struct Sequence
 {
   char a;
   char b;
-  char c;
-  char d;
+ 
   char name;
+};
+
+struct SubSequence
+{
+char a;
+char b;
+char name;    
 };
 
 struct Enviroment
 {
   char prevSign1 =0;
   char prevSignValue1 =0;
-  char prevSign2 =0;
-  char prevSignValue2 =0;
-  char prevSign3 =0;
-  char prevSignValue3 =0;
+  char prevFound1=0;
+  
+  char prevSign1Sub =0;
+  char prevSignValue1Sub =0;
+  char prevFound1Sub=0;
+
+  int tickCounter =0;
   char a;
 char b;
 char state;
@@ -81,11 +94,17 @@ char dualDecoderState = 0;
 unsigned int bitSumer = 0;
   struct Symbol symbols[maxSymbol];
   struct Sequence sequences[maxSequence];
+  struct SubSequence subSequences[maxSequence];
   char symbolCount = 0;
 char sequenceCount = 0;
+char subSequenceCount = 0;
   decodeProtocolCallback decodeProtocol;
   char protocolID;
   char bpos;
+  char bposSub;
+  char startSymbol ='N';
+  char endSymbol ='N';
+  char initSymbol ='N';
   
 };
 
@@ -97,6 +116,10 @@ typedef void (*readSymbol) (short symbol);
 typedef void (*radioConfigCallback) (int radioID, char txrx, int protocolNr, int modulationType,  long frequency,  long bandwidth,  long drate,  long fhub,
 char changeRadioID, char changeTxrx, char changeProtocolNr, char changeModulationType,  char changeFrequency,  char changeBandwidth,  char changeDrate,   char changeFhub);
 
+
+
+void resetTickCounter();
+int getTickCounter();
 char getScanMode();
 char isPrintDescription();
 void sumBit(char bitValue);
@@ -106,18 +129,20 @@ char parseCommandLine(char *in);
 void writeDecodeInt(long value);
 void writeDecode(short symbol);
 void writeDecodeInt(long value);
+void writeNewLine();
 void printHelp();
 void setProtocol(char protID);
 char getProtocolID();
 void resetParseBuffer();
 char findSymbol(long DValue);
 void decodeStep(long DValue);
-void decodeTickAbsoluteTime(unsigned long  absoluteTime, char level);
-void decodeTickDeltaTime(unsigned long  deltaTime, char level);
+void decodeTickAbsoluteTime(unsigned long  absoluteTime, char inputLevel);
+void decodeTickDeltaTime(unsigned long  deltaTime, char inputLevel);
 void setHighLevelCallback(sendTTL func1, readSymbol func2,radioConfigCallback func3);
 void sendSymbolString(char *symbolStr, int repeat);
 void sendSymbol(short symbolSrc);
-void setSequence(unsigned char nr, char symbolA, char symbolB, char symbolC, char symbolD);
+void setSequence(unsigned char nr, char symbolA, char symbolB);
+void setSubSequence(unsigned char nr, char symbolA, char symbolB);
 void setSymbol(unsigned char nr, short minTime, short maxTime, short duration);
 void setSymbolMargin(unsigned char nr, short duration, float margin);
 void setSymbolAbsoluteMargin(unsigned char nr, short duration, short margin);
@@ -142,6 +167,7 @@ void resetBuffer();
 short getDecBufferPos();
 char getState();
 void setState(char value);
+void resetBuffersAndSetState(char value);
 char decodeDefault(char symbol, long value, char protocolID);
 char encodeDefault(char symbol, char protocolID);
 void setDecodeProtocol(decodeProtocolCallback func);
