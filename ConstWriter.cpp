@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifdef AVRBoard
 #define writeDescription(x) SerialPrint_P(PSTR(x))
 void SerialPrint_P(PGM_P str) {
-  if (isPrintDescription() || getScanMode())
+  if ( getAcceptPrintDescription() == 1)
   {
     writeDecode('#'); writeDecodeInt(getProtocolID()); writeDecode(' ');
     for (uint8_t c; (c = pgm_read_byte(str)); str++) writeDecode(c);

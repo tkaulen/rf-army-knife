@@ -32,10 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #define tempBufferSize  33
 
-#define maxSymbol 10
-#define maxSequence 5
-#define maxSubSequence 5
-#define maxEnviroments 1
+
 
 
 
@@ -46,15 +43,40 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define radioTX 1
 #define radioRX 2
 
+#define recorderStop 0
+#define recorderRecordRf 1
+#define recorderPlay 2
+#define recorderRecordEncoder 4
+
+#define opModeDefault 0
+#define opModeRawToConsole 1
+#define opModeToRecorder 2
+#define opModeParalellTask 3
+
+#define inputBufsize 8
+
+
+
+
+
 typedef char (*decodeProtocolCallback)(char symbol,long value, char protocolID);
 typedef char (*encodeProtocolCallback)(char symbol,char protocolID);
+
+
+
+struct InputRingBuffer
+{   
+  uint8_t putoff;
+  uint8_t getoff;
+  uint8_t nbytes;       // Number of data bytes
+  short buf[inputBufsize];
+};
 
 struct Symbol
 {
   short min;
   short max;
   short duration;
-  char sequenceStartPoint;
   char name;
 };
 
@@ -75,6 +97,7 @@ char name;
 
 struct Enviroment
 {
+  char taskID =0;
   char prevSign1 =0;
   char prevSignValue1 =0;
   char prevFound1=0;
@@ -84,13 +107,12 @@ struct Enviroment
   char prevFound1Sub=0;
 
   int tickCounter =0;
-  char a;
-char b;
+
 char state;
 char decBuffer[decBufferSize];
 char decBufferPos = 0;
 char bitSumerPos = 0;
-char dualDecoderState = 0;
+//char dualDecoderState = 0;
 unsigned int bitSumer = 0;
   struct Symbol symbols[maxSymbol];
   struct Sequence sequences[maxSequence];
@@ -105,6 +127,7 @@ char subSequenceCount = 0;
   char startSymbol ='N';
   char endSymbol ='N';
   char initSymbol ='N';
+  char flushCondition='P';
   
 };
 
@@ -116,11 +139,17 @@ typedef void (*readSymbol) (short symbol);
 typedef void (*radioConfigCallback) (int radioID, char txrx, int protocolNr, int modulationType,  long frequency,  long bandwidth,  long drate,  long fhub,
 char changeRadioID, char changeTxrx, char changeProtocolNr, char changeModulationType,  char changeFrequency,  char changeBandwidth,  char changeDrate,   char changeFhub);
 
-
-
+short getInputRingbuffer();
+char decodeTickFromRingbuffer();
+void putInputRingbufferAbsoluteTime(unsigned long  absoluteTime, char inputLevel);
+void putInputRingbufferDeltaTime(short data);
+void switchEnviroment(char enviromentSlot);
+void endDefineProtocolParalellTask();
+void defineProtocolParalellTask(char protID);
+char getAcceptPrintDescription();
 void resetTickCounter();
 int getTickCounter();
-char getScanMode();
+char getOperationMode();
 char isPrintDescription();
 void sumBit(char bitValue);
 void resetBitSumer();
@@ -159,11 +188,13 @@ void writeEncode(char symbolSrc);
 void writeBufferText(char *text);
 void flushEncodeBuffer();
 void flushDecodeBuffer();
+void flushDecodeBuffer(char condition);
 short getDecBufferPos();
 char readBuffer();
 void writeBuffer(char symbol);
 char readDecBuffer(short index);
 void resetBuffer();
+void resetState(char value);
 short getDecBufferPos();
 char getState();
 void setState(char value);

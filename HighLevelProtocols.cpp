@@ -35,10 +35,8 @@ void setIntertechnoFrequencys()
 void onSetProtocol(char protID)
 {
 
-
   switch (protID)
   {
-
     case protDefault:
       setDecodeProtocol(decodeDefault);
       setEncodeProtocol(encodeDefault);
@@ -47,14 +45,14 @@ void onSetProtocol(char protID)
     case protIntertechno:
 
       /* set decimator configuration */
-      setSymbolMargin('1', 1000, 0.33); /// High Level, 1000ys, decimator tollerance +- 1000*0.33 ys
-      setSymbolMargin('2', -1000, 0.33); /// Low Level, 1000ys, decimator tollerance +- 1000*0.33 ys
-      setSymbolMargin('3', 300, 0.33);
-      setSymbolMargin('4', -300, 0.33);
-      setSymbolRange('5', -10000, minRange, -6000 ); // decimator low level range from low 6000 ys to 14000 ys, output duration low 10000 ys
+      setSymbolMargin('0', 1000, 0.33); /// High Level, 1000ys, decimator tollerance +- 1000*0.33 ys
+      setSymbolMargin('1', -1000, 0.33); /// Low Level, 1000ys, decimator tollerance +- 1000*0.33 ys
+      setSymbolMargin('2', 300, 0.33);
+      setSymbolMargin('3', -300, 0.33);
+      setSymbolRange('4', -10000, minRange, -6000 ); // decimator low level range from low 6000 ys to 14000 ys, output duration low 10000 ys
 
-      setSequence('a', '3', '2'); //// 300 ys High 1000 ys Low
-      setSequence('b', '1', '4');
+      setSequence('a', '2', '1'); //// 300 ys High 1000 ys Low
+      setSequence('b', '0', '3');
 
       setSequence('v', 'a', 'a');
       setSequence('w', 'b', 'b');
@@ -91,10 +89,6 @@ void onSetProtocol(char protID)
       writeDescription("Intertechno Long");
       break;
   }
-
-
-
-
 
   ////changeProtocol(protID); :ToDo
 }
