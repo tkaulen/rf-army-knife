@@ -96,15 +96,15 @@ LR - List Rohdatenrekorder
 
 ***P*** - Protokoll auswählen. Syntax: P=Protokollnummer
 
-***F*** - Setzt die Frequenz in Herz Syntax F=Frequenz in Herz
+***F*** - Setzt die Frequenz in Hertz Syntax F=Frequenz in Hertz
 
 ***M*** - Setzt die Modulationsart. Syntax P=am oder P=fm
 
-***B*** - Bandbreite in Herz
+***B*** - Bandbreite in Hertz
 
 ***D*** - Datenrate in Baud
 
-***Q*** - Frequenzhub in Herz
+***Q*** - Frequenzhub in Hertz
 
 ###Konfigurationsbefehle - Decimator
 
