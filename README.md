@@ -316,7 +316,7 @@ Jeder ist dazu eingeladen weitere Funkprotokolle hinzuzufügen. Schickt mir die 
 * Mehrere Protokolle an the fly gleichzeitg dekodieren
 * Port für Raspberry PI
 * Analog Frontend (IQ Mixer,Filter,Demodulatoren)
-* Ziel dieses Projektes ist es, irgendwann einmal sämtliche Funkprotokolle abzudecken, die es gibt. 
+
 
 
 
